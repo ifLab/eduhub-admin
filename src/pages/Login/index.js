@@ -1,16 +1,12 @@
 import React, { useState } from 'react';
 import { Card, Form, Input, Button } from 'antd';
-// import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
     const [form] = Form.useForm();
-    // const history = useHistory(); // 用于后续跳转
+    const navigate = useNavigate();
 
-    // const onFinish = (values) => {
-    //     console.log('登录信息', values);
-    // };
     const onFinish = (values) => {
-        console.log("11111111111111111")
         fetch('http://localhost:3001/login', {
             method: 'POST',
             headers: {
@@ -19,7 +15,6 @@ function Login() {
             body: JSON.stringify(values),
         })
             .then(response => {
-                console.log("22222222222222222")
                 console.log("response",response)
                 if (response.ok) {
                     return response.json();
@@ -28,11 +23,9 @@ function Login() {
             })
             .then(data => {
                 console.log('登录成功:', data);
-                // this.props.history.push('/login')
-                // history.push('/AdminPage'); // 登录成功后跳转
+                navigate('/AdminPage'); // 登录成功后跳转)
             })
             .catch(error => {
-                console.log("3333333333333333")
                 console.error('登录错误:', error);
             });
     };
