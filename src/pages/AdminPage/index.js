@@ -10,6 +10,7 @@ import {
     QuestionOutlined
 } from '@ant-design/icons';
 import ApplicationPage  from "../../components/ApplicationPage";
+import IndexPage   from "../../components/IndexPage";
 
 const { Header, Content, Sider } = Layout;
 
@@ -73,6 +74,7 @@ const AdminPage = () => {
                         {/*选择一个栏目以开始管理*/}
                         {/*//TODO 不同的栏目用不同的内容*/}
                         {selectedMenu === '1' && <ApplicationPage />}
+                        {selectedMenu === '2' && <IndexPage />}
                     </Content>
                 </Layout>
             </Layout>

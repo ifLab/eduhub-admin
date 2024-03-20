@@ -1,123 +1,222 @@
-import React, {useEffect, useState} from 'react';
-import {Table, Button, Popconfirm, Form, Modal, Input} from 'antd';
+    import React, {useEffect, useState} from 'react';
+    import {Table, Button, Popconfirm, Form, Modal, Input} from 'antd';
 
-const ApplicationPage = () => {
+    const ApplicationPage = () => {
 
-    const columns = [
-        {
-            title: '名称',
-            dataIndex: 'name',
-            key: 'name',
-        },
-        {
-            title: 'API',
-            dataIndex: 'api',
-            key: 'api',
-        },
-        {
-            title: '操作',
-            key: 'action',
-            render: (_, record) => (
-                <>
-                    <Button type="link" onClick={() => handleEdit(record)}>修改</Button>
-                    <Popconfirm title="确定删除吗?" onConfirm={() => handleDelete(record.key)}>
-                        <Button type="link">删除</Button>
-                    </Popconfirm>
-                </>
-            ),
-        },
-    ];
-    const [data, setData] = useState([
-    ]);
-    const [currentRecord, setCurrentRecord] = useState(null);
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const [form] = Form.useForm();
-    useEffect(() => {
-        fetch('http://localhost:3001/getDify_keys')
-            .then(response => response.json())
-            .then(data => {
-                console.log("data",data)
-                // 将对象转换为数组，并添加key属性以供Ant Design的Table组件使用
-                const formattedData = Object.entries(data).map(([key, value], index) => ({
-                    key: index.toString(),
-                    name: key,
-                    api: value,
-                }));
-                setData(formattedData);
-            })
-            .catch(error => console.error('Failed to fetch data:', error));
-    }, []);
-    const handleEdit = (record) => {
-        setCurrentRecord(record);
-        setIsModalVisible(true);
-        form.setFieldsValue({
-            name: record.name,
-            api: record.api,
-        });
-    };
-    const handleDelete = (key) => {
-        setData(data.filter(item => item.key !== key));
-    };
-    const handleOk = () => {
-        form
-            .validateFields()
-            .then(values => {
-                // 这里可以处理表单提交逻辑，例如更新数据
-                console.log('Received values of form: ', values);
-                setIsModalVisible(false);
-                fetch('http://localhost:3001/updateKeysData', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        [values.name]: values.api,// 仅发送修改的键值对
-                    }),
+        const columns = [
+            {
+                title: '名称',
+                dataIndex: 'name',
+                key: 'name',
+            },
+            {
+                title: 'API',
+                dataIndex: 'api',
+                key: 'api',
+            },
+            {
+                title: '操作',
+                key: 'action',
+                render: (_, record) => (
+                    <>
+                        <Button type="link" onClick={() => handleEdit(record)}>修改</Button>
+                        {/*<Popconfirm title="确定删除吗?" onConfirm={() => handleDelete(record.key)}>*/}
+                        {/*    <Button type="link">删除</Button>*/}
+                        {/*</Popconfirm>*/}
+                    </>
+                ),
+            },
+        ];
+        const [data, setData] = useState([
+        ]);
+        const [currentRecord, setCurrentRecord] = useState(null);
+        const [isModalVisible, setIsModalVisible] = useState(false);
+        const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+        const [form] = Form.useForm();
+        const [addForm] = Form.useForm();
+        const [searchText, setSearchText] = useState('');
+
+        const fetchData = () =>{
+            fetch('http://localhost:3001/getDify_keys')
+                .then(response => response.json())
+                .then(data => {
+                    console.log("data",data)
+                    // 将对象转换为数组，并添加key属性以供Ant Design的Table组件使用
+                    const formattedData = Object.entries(data).map(([key, value], index) => ({
+                        key: index.toString(),
+                        name: key,
+                        api: value,
+                    }));
+                    setData(formattedData);
                 })
-                    .then(response => response.text())
-                    .then(message => {
-                        console.log(message);
-                        // setIsModalVisible(false);
-                        // 可能需要重新获取更新后的数据
-                    })
-                    .catch(error => console.error('Failed to update data:', error));
-                // 更新表格数据等逻辑...
-            })
-            .catch(info => {
-                console.log('Validate Failed:', info);
+                .catch(error => console.error('Failed to fetch data:', error));
+        }
+
+        const handleSearch = (e) => {
+            setSearchText(e.target.value);
+        };
+        const filteredData = data.filter(item => item.name.toLowerCase().includes(searchText.toLowerCase()));
+
+
+        useEffect(() => {
+            fetchData();
+        }, []);
+        const handleEdit = (record) => {
+            setCurrentRecord(record);
+            setIsModalVisible(true);
+            form.setFieldsValue({
+                name: record.name,
+                api: record.api,
             });
+        };
+        const handleDelete = (key) => {
+            fetch('http://localhost:3001/deleteKeyData', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: data.find(item => item.key === key).name, // 获取要删除数据的名称
+                }),
+            })
+                .then(response => response.text())
+                .then(message => {
+                    console.log(message);
+                    // 请求成功后更新前端数据
+                    setData(data.filter(item => item.key !== key));
+                })
+                .catch(error => console.error('Failed to delete data:', error))
+            //前端删除
+            // setData(data.filter(item => item.key !== key));
+        };
+        const handleOk = () => {
+            form
+                .validateFields()
+                .then(values => {
+                    // 这里可以处理表单提交逻辑，例如更新数据
+                    console.log('Received values of form: ', values);
+                    fetch('http://localhost:3001/updateKeysData', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            originalName: currentRecord.name, // 当前记录的原始名称
+                            newName: values.name, // 表单中的新名称
+                            newValue: values.api, // 表单中的新值
+                        }),
+                    })
+                        .then(response => response.text())
+                        .then(message => {
+                            console.log(message);
+                            // setIsModalVisible(false);
+                            // 可能需要重新获取更新后的数据
+                        })
+                        .catch(error => console.error('Failed to update data:', error));
+                    // 更新表格数据等逻辑...
+                    fetchData()
+                    setIsModalVisible(false);
+                })
+                .catch(info => {
+                    console.log('Validate Failed:', info);
+                });
+        };
+
+        const handleAddOk = () => {
+            addForm
+                .validateFields()
+                .then(values => {
+                    // 发送添加应用的请求到服务器
+                    fetch('http://localhost:3001/addApplication', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            name: values.appName,
+                            api: values.appAPI,
+                        }),
+                    })
+                        .then(response => response.text())
+                        .then(message => {
+                            console.log(message);
+                            // 添加成功后刷新数据
+                            fetchData();
+                            // 关闭模态框
+
+                            setIsAddModalVisible(false);
+                        })
+                        .catch(error => console.error('Failed to add application:', error));
+                })
+                .catch(info => {
+                    console.log('Validate Failed:', info);
+                });
+        };
+
+
+        const handleCancel = () => {
+            setIsModalVisible(false);
+        };
+
+        const handleAddCancel = () => {
+            setIsAddModalVisible(false);
+        };
+
+        const handleAdd = () => {
+            setCurrentRecord(null);
+            setIsAddModalVisible(true);
+            addForm.resetFields();
+        };
+
+        return (
+            <>
+                {/*<Button type="primary" onClick={handleAdd} style={{ marginBottom: 16 }}>添加</Button>*/}
+                <Input
+                    placeholder="搜索名称"
+                    value={searchText}
+                    onChange={handleSearch}
+                    style={{ width: 200, marginBottom: 16 }}
+                />
+                <Table columns={columns} dataSource={filteredData} />
+                <Modal title="修改" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
+                    <Form form={form} layout="vertical" name="form_in_modal">
+                        <Form.Item
+                            name="name"
+                            label="名称"
+                            rules={[{ required: true, message: '请输入名称!' }]}
+                        >
+                            <Input disabled />
+                        </Form.Item>
+                        <Form.Item
+                            name="api"
+                            label="API"
+                            rules={[{ required: true, message: '请输入API!' }]}
+                        >
+                            <Input />
+                        </Form.Item>
+                    </Form>
+                </Modal>
+
+                <Modal title="添加应用" visible={isAddModalVisible} onOk={handleAddOk} onCancel={handleAddCancel}>
+                    <Form form={addForm} layout="vertical" name="add_form_in_modal">
+                        <Form.Item
+                            name="appName"
+                            label="应用名称"
+                            rules={[{ required: true, message: '请输入应用名称!' }]}
+                        >
+                            <Input />
+                        </Form.Item>
+                        <Form.Item
+                            name="appAPI"
+                            label="应用API"
+                            rules={[{ required: true, message: '请输入应用API!' }]}
+                        >
+                            <Input />
+                        </Form.Item>
+                    </Form>
+                </Modal>
+            </>
+        );
     };
-    const handleCancel = () => {
-        setIsModalVisible(false);
-    };
 
-    // 注意：handleEdit 和 handleDelete 需要被实现，或者从外部传入
-    // 如果这些函数依赖于外部状态，你可能需要将它们作为props传入
-
-    // return <Table columns={columns} dataSource={data} />;
-    return (
-        <>
-            <Table columns={columns} dataSource={data} />
-            <Modal title="修改" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
-                <Form form={form} layout="vertical" name="form_in_modal">
-                    <Form.Item
-                        name="name"
-                        label="名称"
-                        rules={[{ required: true, message: '请输入名称!' }]}
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        name="api"
-                        label="API"
-                        rules={[{ required: true, message: '请输入API!' }]}
-                    >
-                        <Input />
-                    </Form.Item>
-                </Form>
-            </Modal>
-        </>
-    );
-};
-
-export default ApplicationPage;
+    export default ApplicationPage;

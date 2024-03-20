@@ -27,19 +27,9 @@
   ],
   "Chats": [
     {
-      "id":"73B2E1EC-E050-4C8A-9423-9B66DAC78A2F",
-      "name":"智能助理",
-      "folderId":"ad308d23-9f8a-495c-8211-d54448e13684"
-    },
-    {
-      "id": "5edf4dcf-20cd-4266-a22e-20ae94f5089b",
-      "name": "信息网络问答",
-      "folderId": "ad308d23-9f8a-495c-8211-d54448e13684"
-    },
-    {
-      "id":"DA5541BE-4E47-4596-B5A7-3A188D7BD607",
-      "folderId":"ad308d23-9f8a-495c-8211-d54448e13684",
-      "name":"教师问答"
+      "id": "DA5541BE-4E47-4596-B5A7-3A188D7BD607",
+      "folderId": "ad308d23-9f8a-495c-8211-d54448e13684",
+      "name": "教师问答"
     },
     {
       "id": "cc0a5515-12b8-4e50-bedb-90547fb72d59",
@@ -47,10 +37,9 @@
       "folderId": "ad308d23-9f8a-495c-8211-d54448e13684"
     },
     {
-      "id":"589FC1BB-7B36-4D86-A393-1EE8E4CAA6DC",
-      "folderId":"5786786f-f7eb-4d18-9e40-59ee4cfe5366",
-      "name":"软件工程测试"
-
+      "id": "589FC1BB-7B36-4D86-A393-1EE8E4CAA6DC",
+      "folderId": "5786786f-f7eb-4d18-9e40-59ee4cfe5366",
+      "name": "软件工程测试"
     },
     {
       "id": "5d1c0466-729f-4c41-ba79-b947523749b3",
