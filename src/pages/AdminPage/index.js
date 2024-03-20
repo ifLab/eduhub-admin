@@ -11,6 +11,8 @@ import {
 } from '@ant-design/icons';
 import ApplicationPage  from "../../components/ApplicationPage";
 import IndexPage   from "../../components/IndexPage";
+import PromptsPage from "../../components/PromptsPage";
+
 
 const { Header, Content, Sider } = Layout;
 
@@ -75,6 +77,7 @@ const AdminPage = () => {
                         {/*//TODO 不同的栏目用不同的内容*/}
                         {selectedMenu === '1' && <ApplicationPage />}
                         {selectedMenu === '2' && <IndexPage />}
+                        {selectedMenu === '3' && <PromptsPage />}
                     </Content>
                 </Layout>
             </Layout>

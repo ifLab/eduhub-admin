@@ -10,6 +10,8 @@ const { v4: uuidv4 } = require('uuid');
 const filePath = path.join(__dirname, '..', 'data', 'account.json');
 const dify_keys = path.join(__dirname, '..', 'data', 'dify_keys.json');
 const studentChatPath =path.join(__dirname, '..', 'data', 'studentChat.json');
+const promptPath =path.join(__dirname, '..', 'data', 'prompt.json');
+
 
 //后端
 app.use(cors());
@@ -238,6 +240,20 @@ app.post('/addChat', (req, res) => {
         });
     });
 });
+
+app.get('/getPrompts', (req, res) => {
+    fs.readFile( promptPath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading file:', err);
+            res.status(500).send('Error reading prompt file');
+            return;
+        }
+        res.json(JSON.parse(data));
+    });
+});
+
+
+
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
 });
