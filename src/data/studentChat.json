@@ -23,13 +23,19 @@
       "name": "学生应用",
       "type": "chat",
       "deletable": false
+    },
+    {
+      "id": "851e1fee-b27b-47ad-94de-c2fa418b12da",
+      "name": "张有为",
+      "type": "chat",
+      "deletable": false
     }
   ],
   "Chats": [
     {
-      "id": "DA5541BE-4E47-4596-B5A7-3A188D7BD607",
-      "folderId": "ad308d23-9f8a-495c-8211-d54448e13684",
-      "name": "教师问答"
+      "id": "5edf4dcf-20cd-4266-a22e-20ae94f5089b",
+      "name": "信息网络问答",
+      "folderId": "ad308d23-9f8a-495c-8211-d54448e13684"
     },
     {
       "id": "cc0a5515-12b8-4e50-bedb-90547fb72d59",
@@ -120,6 +126,16 @@
       "id": "3A6FB047-B273-4F6B-8AEC-FC6F80B84933",
       "folderId": "6B0BD3CE-057D-4008-B78B-07A3D738DC3D",
       "name": "测验生成"
+    },
+    {
+      "id": "0e6e70a3-d01d-40a8-afb3-ba98d3a6fc45",
+      "name": "学生问答",
+      "folderId": "ad308d23-9f8a-495c-8211-d54448e13684"
+    },
+    {
+      "id": "9e78195e-ce87-4d65-8c62-f43b2af28ffa",
+      "name": "教务问答",
+      "folderId": "6B0BD3CE-057D-4008-B78B-07A3D738DC3D"
     }
   ]
 }

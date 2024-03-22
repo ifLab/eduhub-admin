@@ -12,7 +12,7 @@ import {
 import ApplicationPage  from "../../components/ApplicationPage";
 import IndexPage   from "../../components/IndexPage";
 import PromptsPage from "../../components/PromptsPage";
-
+import HelpPage from "../../components/HelpPage";
 
 const { Header, Content, Sider } = Layout;
 
@@ -78,6 +78,7 @@ const AdminPage = () => {
                         {selectedMenu === '1' && <ApplicationPage />}
                         {selectedMenu === '2' && <IndexPage />}
                         {selectedMenu === '3' && <PromptsPage />}
+                        {selectedMenu === '7' && <HelpPage />}
                     </Content>
                 </Layout>
             </Layout>

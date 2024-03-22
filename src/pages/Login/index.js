@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Form, Input, Button } from 'antd';
+import {Card, Form, Input, Button, message} from 'antd';
 import { useNavigate } from 'react-router-dom';
 
 function Login() {
@@ -20,13 +20,16 @@ function Login() {
                     return response.json();
                 }
                 throw new Error('登录失败');
+                message.error('登录失败');
             })
             .then(data => {
                 console.log('登录成功:', data);
+                message.success('登录成功');
                 navigate('/AdminPage'); // 登录成功后跳转)
             })
             .catch(error => {
                 console.error('登录错误:', error);
+                message.error('登录失败');
             });
     };
 

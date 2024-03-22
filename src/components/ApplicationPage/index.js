@@ -1,5 +1,5 @@
     import React, {useEffect, useState} from 'react';
-    import {Table, Button, Popconfirm, Form, Modal, Input} from 'antd';
+    import {Table, Button, Popconfirm, Form, Modal, Input, message} from 'antd';
 
     const ApplicationPage = () => {
 
@@ -20,9 +20,9 @@
                 render: (_, record) => (
                     <>
                         <Button type="link" onClick={() => handleEdit(record)}>修改</Button>
-                        {/*<Popconfirm title="确定删除吗?" onConfirm={() => handleDelete(record.key)}>*/}
-                        {/*    <Button type="link">删除</Button>*/}
-                        {/*</Popconfirm>*/}
+                        <Popconfirm title="确定删除吗?" onConfirm={() => handleDelete(record.key)}>
+                            <Button type="link">删除</Button>
+                        </Popconfirm>
                     </>
                 ),
             },
@@ -70,6 +70,7 @@
             });
         };
         const handleDelete = (key) => {
+            // const nameToDelete = data.find(item => item.key === key).name;
             fetch('http://localhost:3001/deleteKeyData', {
                 method: 'POST',
                 headers: {
@@ -79,13 +80,24 @@
                     name: data.find(item => item.key === key).name, // 获取要删除数据的名称
                 }),
             })
-                .then(response => response.text())
-                .then(message => {
-                    console.log(message);
+                .then(async response => {
+                    const textMessage = await response.text();
+                    if (!response.ok) {
+                        // message.error('删除失败,该应用已被使用!');
+                        throw new Error(textMessage);
+                    }
+                    return textMessage;
+                })
+                .then(messages => {
+                    console.log(messages);
                     // 请求成功后更新前端数据
                     setData(data.filter(item => item.key !== key));
+                    message.success('删除成功');
                 })
-                .catch(error => console.error('Failed to delete data:', error))
+                .catch(error => {
+                    console.error('Failed to delete data:', error);
+                    message.error(error.message); // 使用 message 组件显示错误提示
+                });
             //前端删除
             // setData(data.filter(item => item.key !== key));
         };
@@ -109,6 +121,17 @@
                         .then(response => response.text())
                         .then(message => {
                             console.log(message);
+                            fetchData();
+                            return fetch('http://localhost:3001/editChatName', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    originalName: currentRecord.name, // 当前记录的原始名称
+                                    newName: values.name, // 表单中的新名称
+                                }),
+                            });
                             // setIsModalVisible(false);
                             // 可能需要重新获取更新后的数据
                         })
@@ -116,6 +139,10 @@
                     // 更新表格数据等逻辑...
                     fetchData()
                     setIsModalVisible(false);
+
+                    //TODO 同时修改studentChat.json 文件
+
+
                 })
                 .catch(info => {
                     console.log('Validate Failed:', info);
@@ -170,7 +197,7 @@
 
         return (
             <>
-                {/*<Button type="primary" onClick={handleAdd} style={{ marginBottom: 16 }}>添加</Button>*/}
+                <Button type="primary" onClick={handleAdd} style={{ marginBottom: 16,float: 'right' }}>添加应用</Button>
                 <Input
                     placeholder="搜索名称"
                     value={searchText}
@@ -185,7 +212,7 @@
                             label="名称"
                             rules={[{ required: true, message: '请输入名称!' }]}
                         >
-                            <Input disabled />
+                            <Input  />
                         </Form.Item>
                         <Form.Item
                             name="api"
