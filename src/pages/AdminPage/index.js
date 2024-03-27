@@ -13,6 +13,8 @@ import ApplicationPage  from "../../components/ApplicationPage";
 import IndexPage   from "../../components/IndexPage";
 import PromptsPage from "../../components/PromptsPage";
 import HelpPage from "../../components/HelpPage";
+import SetPage from "../../components/SetPage";
+import AppearancePage from "../../components/AppearancePage";
 
 const { Header, Content, Sider } = Layout;
 
@@ -39,6 +41,13 @@ const AdminPage = () => {
         setIsModalVisible(false);
         form.resetFields();
     };
+
+
+    const dataSource = [
+        { id: 'a', content: 'Item 1' },
+        { id: 'b', content: 'Item 2' },
+        { id: 'c', content: 'Item 3' },
+    ];
     return (
         <Layout style={{ minHeight: '100vh' }}>
             <Header className="header" style={{ color: 'white', fontSize: '20px' }}>
@@ -78,6 +87,8 @@ const AdminPage = () => {
                         {selectedMenu === '1' && <ApplicationPage />}
                         {selectedMenu === '2' && <IndexPage />}
                         {selectedMenu === '3' && <PromptsPage />}
+                        {selectedMenu === '4' && <SetPage dataSource={dataSource}/>}
+                        {selectedMenu === '5' && <AppearancePage/>}
                         {selectedMenu === '7' && <HelpPage />}
                     </Content>
                 </Layout>

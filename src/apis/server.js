@@ -13,6 +13,7 @@ const dify_keys = path.join(__dirname, '..', 'data', 'dify_keys.json');
 const studentChatPath =path.join(__dirname, '..', 'data', 'studentChat.json');
 const promptPath =path.join(__dirname, '..', 'data', 'prompt.json');
 const helpPath =path.join(__dirname, '..', 'data', 'help.json');
+const lookPath =path.join(__dirname, '..', 'data', 'looks.json');
 
 
 //后端
@@ -430,6 +431,27 @@ app.delete('/deleteFolder/:id', (req, res) => {
     });
 });
 
+
+app.post('/updateFoldersOrder', (req, res) => {
+    const { Folders } = req.body;
+    fs.readFile(studentChatPath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading file:', err);
+            return res.status(500).json({ error: 'An error occurred while reading the file.' });
+        }
+
+        const jsonData = JSON.parse(data);
+        jsonData.Folders = Folders;
+
+        fs.writeFile(studentChatPath, JSON.stringify(jsonData, null, 2), 'utf8', (err) => {
+            if (err) {
+                console.error('Error writing file:', err);
+                return res.status(500).json({ error: 'An error occurred while writing to the file.' });
+            }
+            res.status(200).json({ message: 'File updated successfully' });
+        });
+    });
+});
 app.put('/updatePrompt/:id', (req, res) => {
     const { id } = req.params;
     const updatedPrompt = req.body;
@@ -545,6 +567,23 @@ app.post(helpPath, (req, res) => {
         } else {
             console.log('Data updated successfully');
             res.send('Data updated successfully');
+        }
+    });
+});
+
+app.get('/getAppearanceData', (req, res) => {
+    const data = JSON.parse(fs.readFileSync(lookPath));
+    res.json(data);
+});
+
+app.post('/saveAppearanceData', (req, res) => {
+    const newData = req.body;
+    fs.writeFile(lookPath, JSON.stringify(newData), (err) => {
+        if (err) {
+            console.error('保存外观数据失败:', err);
+            res.status(500).send('保存失败');
+        } else {
+            res.json(newData);
         }
     });
 });

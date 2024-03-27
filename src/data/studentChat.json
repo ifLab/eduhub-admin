@@ -1,14 +1,8 @@
 {
   "Folders": [
     {
-      "id": "ad308d23-9f8a-495c-8211-d54448e13684",
-      "name": "校园助手",
-      "type": "chat",
-      "deletable": false
-    },
-    {
-      "id": "5786786f-f7eb-4d18-9e40-59ee4cfe5366",
-      "name": "课程助教",
+      "id": "851e1fee-b27b-47ad-94de-c2fa418b12da",
+      "name": "张有为",
       "type": "chat",
       "deletable": false
     },
@@ -19,14 +13,20 @@
       "deletable": false
     },
     {
-      "id": "81E69505-93B7-474A-BB13-8283472B280E",
-      "name": "学生应用",
+      "id": "5786786f-f7eb-4d18-9e40-59ee4cfe5366",
+      "name": "课程助教",
       "type": "chat",
       "deletable": false
     },
     {
-      "id": "851e1fee-b27b-47ad-94de-c2fa418b12da",
-      "name": "张有为",
+      "id": "ad308d23-9f8a-495c-8211-d54448e13684",
+      "name": "校园助手",
+      "type": "chat",
+      "deletable": false
+    },
+    {
+      "id": "81E69505-93B7-474A-BB13-8283472B280E",
+      "name": "学生应用",
       "type": "chat",
       "deletable": false
     }
