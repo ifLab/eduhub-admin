@@ -538,7 +538,28 @@ app.post('/addPrompt', (req, res) => {
     });
 });
 
+app.post('/updatePromptsOrder', (req, res) => {
+    const updatedData = req.body;
 
+    fs.readFile(promptPath, (err, data) => {
+        if (err) {
+            console.error('Failed to read file:', err);
+            return res.status(500).send('Failed to read file');
+        }
+
+        const jsonData = JSON.parse(data);
+        jsonData.defaultPrompts = updatedData.defaultPrompts; // 更新数据
+
+        fs.writeFile(promptPath, JSON.stringify(jsonData, null, 2), (err) => {
+            if (err) {
+                console.error('Failed to write file:', err);
+                return res.status(500).send('Failed to write file');
+            }
+
+            res.send({ message: 'Prompts order updated successfully' });
+        });
+    });
+});
 
 
 

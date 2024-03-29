@@ -7,7 +7,8 @@ import {
     SettingOutlined,
     SkinOutlined,
     UserOutlined,
-    QuestionOutlined
+    QuestionOutlined,
+    LogoutOutlined
 } from '@ant-design/icons';
 import ApplicationPage  from "../../components/ApplicationPage";
 import IndexPage   from "../../components/IndexPage";
@@ -15,6 +16,7 @@ import PromptsPage from "../../components/PromptsPage";
 import HelpPage from "../../components/HelpPage";
 import SetPage from "../../components/SetPage";
 import AppearancePage from "../../components/AppearancePage";
+import {useNavigate} from "react-router-dom";
 
 const { Header, Content, Sider } = Layout;
 
@@ -24,6 +26,7 @@ const AdminPage = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [currentRecord, setCurrentRecord] = useState(null);
     const [form] = Form.useForm();
+    const navigate = useNavigate();
 
     const handleAdd = () => {
         setCurrentRecord(null);
@@ -42,6 +45,14 @@ const AdminPage = () => {
         form.resetFields();
     };
 
+    const handleLogout = () => {
+        // 这里假设你使用localStorage来存储认证信息
+        localStorage.removeItem('userToken'); // 假设你的token存储在'userToken'键下
+        // 重定向到登录页面
+        // window.location.href = '/login';
+        navigate('/'); // 登录成功后跳转)
+    };
+
 
     const dataSource = [
         { id: 'a', content: 'Item 1' },
@@ -50,8 +61,21 @@ const AdminPage = () => {
     ];
     return (
         <Layout style={{ minHeight: '100vh' }}>
-            <Header className="header" style={{ color: 'white', fontSize: '20px' }}>
-                BISTU Copilot 后台管理
+            {/*<Header className="header" style={{ color: 'white', fontSize: '20px' }}>*/}
+            {/*    BISTU Copilot 后台管理*/}
+            {/*</Header>*/}
+            <Header className="header" style={{ color: 'white', fontSize: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>BISTU Copilot 后台管理</div>
+                <div>
+                    <Popconfirm
+                        title="你确定要退出登录吗？"
+                        onConfirm={handleLogout}
+                        okText="是"
+                        cancelText="否"
+                    >
+                        <LogoutOutlined style={{ fontSize: '20px', color: 'white', cursor: 'pointer' }} /> 退 出
+                    </Popconfirm>
+                </div>
             </Header>
             <Layout>
                 <Sider width={200} className="site-layout-background">
@@ -69,6 +93,7 @@ const AdminPage = () => {
                         <Menu.Item key="5" icon={<SkinOutlined />}>外观</Menu.Item>
                         <Menu.Item key="6" icon={<UserOutlined />}>用户管理</Menu.Item>
                         <Menu.Item key="7" icon={<QuestionOutlined />}>帮助管理</Menu.Item>
+                        {/*<Menu.Item key="8" icon={<LogoutOutlined />} onClick={handleLogout}>退出登录</Menu.Item>*/}
                     </Menu>
                 </Sider>
                 <Layout style={{ padding: '24px' }}>
@@ -90,6 +115,7 @@ const AdminPage = () => {
                         {selectedMenu === '4' && <SetPage dataSource={dataSource}/>}
                         {selectedMenu === '5' && <AppearancePage/>}
                         {selectedMenu === '7' && <HelpPage />}
+
                     </Content>
                 </Layout>
             </Layout>
