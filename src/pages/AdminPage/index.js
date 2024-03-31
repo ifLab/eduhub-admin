@@ -16,6 +16,7 @@ import PromptsPage from "../../components/PromptsPage";
 import HelpPage from "../../components/HelpPage";
 import SetPage from "../../components/SetPage";
 import AppearancePage from "../../components/AppearancePage";
+import IndexTeacherPage from "../../components/IndexTeacherPage";
 import {useNavigate} from "react-router-dom";
 
 const { Header, Content, Sider } = Layout;
@@ -87,12 +88,13 @@ const AdminPage = () => {
                         onSelect={({ key }) => setSelectedMenu(key)}
                     >
                         <Menu.Item key="1" icon={<AppstoreOutlined />}>应用管理</Menu.Item>
-                        <Menu.Item key="2" icon={<DatabaseOutlined />}>目录管理</Menu.Item>
-                        <Menu.Item key="3" icon={<BulbOutlined />}>提示词管理</Menu.Item>
-                        <Menu.Item key="4" icon={<SettingOutlined />}>配置</Menu.Item>
-                        <Menu.Item key="5" icon={<SkinOutlined />}>外观</Menu.Item>
-                        <Menu.Item key="6" icon={<UserOutlined />}>用户管理</Menu.Item>
-                        <Menu.Item key="7" icon={<QuestionOutlined />}>帮助管理</Menu.Item>
+                        <Menu.Item key="2" icon={<DatabaseOutlined />}>学生目录管理</Menu.Item>
+                        <Menu.Item key="3" icon={<DatabaseOutlined />}>老师目录管理</Menu.Item>
+                        <Menu.Item key="4" icon={<BulbOutlined />}>提示词管理</Menu.Item>
+                        <Menu.Item key="5" icon={<SettingOutlined />}>配置</Menu.Item>
+                        <Menu.Item key="6" icon={<SkinOutlined />}>外观</Menu.Item>
+                        <Menu.Item key="7" icon={<UserOutlined />}>用户管理</Menu.Item>
+                        <Menu.Item key="8" icon={<QuestionOutlined />}>帮助管理</Menu.Item>
                         {/*<Menu.Item key="8" icon={<LogoutOutlined />} onClick={handleLogout}>退出登录</Menu.Item>*/}
                     </Menu>
                 </Sider>
@@ -111,10 +113,11 @@ const AdminPage = () => {
                         {/*//TODO 不同的栏目用不同的内容*/}
                         {selectedMenu === '1' && <ApplicationPage />}
                         {selectedMenu === '2' && <IndexPage />}
-                        {selectedMenu === '3' && <PromptsPage />}
-                        {selectedMenu === '4' && <SetPage dataSource={dataSource}/>}
-                        {selectedMenu === '5' && <AppearancePage/>}
-                        {selectedMenu === '7' && <HelpPage />}
+                        {selectedMenu === '3' && <IndexTeacherPage />}
+                        {selectedMenu === '4' && <PromptsPage />}
+                        {selectedMenu === '5' && <SetPage dataSource={dataSource}/>}
+                        {selectedMenu === '6' && <AppearancePage/>}
+                        {selectedMenu === '8' && <HelpPage />}
 
                     </Content>
                 </Layout>

@@ -3,7 +3,7 @@ import {Table, Button, Modal, Form, Input, Select, message} from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-const IndexPage = () => {
+const IndexTeacherPage = () => {
     const [folders, setFolders] = useState([]);
     const [chats, setChats] = useState([]);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -42,7 +42,7 @@ const IndexPage = () => {
     }, []);
 
     const getData = () => {
-        fetch('http://localhost:3001/getStudentChat')
+        fetch('http://localhost:3001/getTeacherChat')
             .then(response => response.json())
             .then(data => {
                 console.log("data",data)
@@ -73,7 +73,7 @@ const IndexPage = () => {
                 return;
             }
 
-            fetch('http://localhost:3001/editChat', {
+            fetch('http://localhost:3001/editChatTeacher', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -115,7 +115,7 @@ const IndexPage = () => {
             cancelText: '取消',
             onOk: () => {
 
-                fetch(`http://localhost:3001/deleteChat/${id}`, {
+                fetch(`http://localhost:3001/deleteChatTeacher/${id}`, {
                     method: 'DELETE',
                 })
                     .then(response => {
@@ -155,7 +155,7 @@ const IndexPage = () => {
                 icon: values.icon,
                 folderId: values.folderId
             };
-            fetch('http://localhost:3001/addChat', {
+            fetch('http://localhost:3001/addChatTeacher', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -194,14 +194,11 @@ const IndexPage = () => {
     };
 
     const handleAddFolder = (folder) => {
-
-        console.log("#########",folder.deletable)
         const folderWithCorrectDeletable = {
             ...folder,
             deletable: folder.deletable.toString() === 'true', // 将字符串转换为布尔值
         };
-
-        fetch('http://localhost:3001/addFolder', {
+        fetch('http://localhost:3001/addFolderTeacher', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -225,7 +222,7 @@ const IndexPage = () => {
 
 // 处理编辑文件夹
     const handleEditFolder = (id, folder) => {
-        fetch(`http://localhost:3001/editFolder/${id}`, {
+        fetch(`http://localhost:3001/editFolderTeacher/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -255,7 +252,7 @@ const IndexPage = () => {
             title: '确定要删除这个文件夹吗？',
             content: '此操作不可撤销',
             onOk: () => {
-                fetch(`http://localhost:3001/deleteFolder/${folderId}`, {
+                fetch(`http://localhost:3001/deleteFolderTeacher/${folderId}`, {
                     method: 'DELETE',
                 })
                     .then(response => {
@@ -382,7 +379,7 @@ const IndexPage = () => {
     };
 
     const updateFoldersOnServer = (folders) => {
-        fetch('http://localhost:3001/updateFoldersOrder', {
+        fetch('http://localhost:3001/updateFoldersOrderTeacher', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -566,4 +563,4 @@ const DroppableComponent = (props) => (
     </Droppable>
 );
 
-export default IndexPage;
+export default IndexTeacherPage;

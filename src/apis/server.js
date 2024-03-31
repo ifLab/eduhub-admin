@@ -11,6 +11,7 @@ const {message} = require("antd");
 const filePath = path.join(__dirname, '..', 'data', 'account.json');
 const dify_keys = path.join(__dirname, '..', 'data', 'dify_keys.json');
 const studentChatPath =path.join(__dirname, '..', 'data', 'studentChat.json');
+const teacherChatPath =path.join(__dirname, '..', 'data', 'teacherChat.json');
 const promptPath =path.join(__dirname, '..', 'data', 'prompt.json');
 const helpPath =path.join(__dirname, '..', 'data', 'help.json');
 const lookPath =path.join(__dirname, '..', 'data', 'looks.json');
@@ -203,6 +204,16 @@ app.get('/getStudentChat', (req, res) => {
         res.json(JSON.parse(data));
     });
 });
+
+app.get('/getTeacherChat', (req, res) => {
+    fs.readFile(teacherChatPath, 'utf8', (err, data) => {
+        if (err) {
+            res.status(500).send('Error reading data file');
+            return;
+        }
+        res.json(JSON.parse(data));
+    });
+});
 //编辑studentChat数据
 app.post('/editChat', (req, res) => {
     const { id, newName, newIcon, newFolderName } = req.body;
@@ -241,6 +252,43 @@ app.post('/editChat', (req, res) => {
     });
 });
 
+app.post('/editChatTeacher', (req, res) => {
+    const { id, newName, newIcon, newFolderName } = req.body;
+    fs.readFile(teacherChatPath, 'utf8', (err, data) => {
+        if (err) {
+            res.status(500).send('Error reading data file');
+            return;
+        }
+        const teacherChatData = JSON.parse(data);
+        const chatIndex = teacherChatData.Chats.findIndex(chat => chat.id === id);
+        if (chatIndex === -1) {
+            res.status(404).send('Chat not found');
+            return;
+        }
+        // 查找新文件夹的ID
+        const newFolder = teacherChatData.Folders.find(folder => folder.name === newFolderName);
+        if (!newFolder) {
+            res.status(404).send('Folder not found');
+            return;
+        }
+        // 更新聊天项数据
+        teacherChatData.Chats[chatIndex] = {
+            ...teacherChatData.Chats[chatIndex],
+            id: uuidv4(), // 生成新的UUID
+            name: newName,
+            icon: newIcon,
+            folderId: newFolder.id
+        };
+        fs.writeFile(teacherChatPath, JSON.stringify(teacherChatData, null, 2), 'utf8', (err) => {
+            if (err) {
+                res.status(500).send('Error writing to file');
+                return;
+            }
+            res.send('Chat updated successfully');
+        });
+    });
+});
+
 app.delete('/deleteChat/:id', (req, res) => {
     const { id } = req.params;
     fs.readFile(studentChatPath, 'utf8', (err, data) => {
@@ -268,6 +316,33 @@ app.delete('/deleteChat/:id', (req, res) => {
     });
 });
 
+app.delete('/deleteChatTeacher/:id', (req, res) => {
+    const { id } = req.params;
+    fs.readFile(teacherChatPath, 'utf8', (err, data) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Error reading data file');
+            return;
+        }
+        let teacherChatData = JSON.parse(data);
+        const chatIndex = teacherChatData.Chats.findIndex(chat => chat.id === id);
+        if (chatIndex === -1) {
+            res.status(404).send('Chat not found');
+            return;
+        }
+        // 删除指定的聊天记录
+        teacherChatData.Chats.splice(chatIndex, 1);
+        fs.writeFile(teacherChatPath, JSON.stringify(teacherChatData, null, 2), 'utf8', (err) => {
+            if (err) {
+                console.error(err);
+                res.status(500).send('Error writing to file');
+                return;
+            }
+            res.send('Chat deleted successfully');
+        });
+    });
+});
+
 app.get('/getAppNames', (req, res) => {
     fs.readFile(dify_keys, 'utf8', (err, data) => {
         if (err) {
@@ -285,6 +360,7 @@ app.get('/getAppNames', (req, res) => {
         }
     });
 });
+
 app.post('/addChat', (req, res) => {
     const { name, icon, folderId } = req.body; // 假设请求体中已包含所有必要的聊天记录信息，包括API字段
     fs.readFile(studentChatPath, 'utf8', (err, data) => {
@@ -303,6 +379,34 @@ app.post('/addChat', (req, res) => {
         studentChatData.Chats.push(newChat); // 将新聊天记录添加到数组中
 
         fs.writeFile(studentChatPath, JSON.stringify(studentChatData, null, 2), 'utf8', (err) => {
+            if (err) {
+                console.error(err);
+                res.status(500).send('Error writing to file');
+                return;
+            }
+            res.send('Chat added successfully');
+        });
+    });
+});
+
+app.post('/addChatTeacher', (req, res) => {
+    const { name, icon, folderId } = req.body; // 假设请求体中已包含所有必要的聊天记录信息，包括API字段
+    fs.readFile(teacherChatPath, 'utf8', (err, data) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Error reading data file');
+            return;
+        }
+        let teacherChatData = JSON.parse(data);
+        const newChat = {
+            id: uuidv4(), // 自动生成UUID
+            name,
+            icon,
+            folderId
+        };
+        teacherChatData.Chats.push(newChat); // 将新聊天记录添加到数组中
+
+        fs.writeFile(teacherChatPath, JSON.stringify(teacherChatData, null, 2), 'utf8', (err) => {
             if (err) {
                 console.error(err);
                 res.status(500).send('Error writing to file');
@@ -363,6 +467,46 @@ app.post('/addFolder', (req, res) => {
     });
 });
 
+app.post('/addFolderTeacher', (req, res) => {
+    const { name, type, deletable } = req.body;
+
+    // 简单的验证
+    if (!name || !type) {
+        return res.status(400).send('Name and type are required');
+    }
+
+    // 读取现有的JSON文件
+    fs.readFile(teacherChatPath, (err, data) => {
+        if (err) {
+            console.error('Failed to read JSON file:', err);
+            return res.status(500).send('Failed to read data');
+        }
+
+        // 解析JSON数据
+        const json = JSON.parse(data.toString());
+        const newFolder = {
+            id: uuidv4(), // 生成唯一ID
+            name,
+            type,
+            deletable: !!deletable,
+        };
+
+        // 添加新文件夹到Folders数组
+        json.Folders.push(newFolder);
+
+        // 将更新后的数据写回JSON文件
+        fs.writeFile(teacherChatPath, JSON.stringify(json, null, 2), (err) => {
+            if (err) {
+                console.error('Failed to write JSON file:', err);
+                return res.status(500).send('Failed to save data');
+            }
+
+            res.status(201).json(newFolder);
+        });
+    });
+});
+
+
 app.put('/editFolder/:id', (req, res) => {
     const { id } = req.params;
     const updatedFolder = req.body;
@@ -386,6 +530,40 @@ app.put('/editFolder/:id', (req, res) => {
         folders[folderIndex] = { ...folders[folderIndex], ...updatedFolder };
 
         fs.writeFile(studentChatPath, JSON.stringify(json, null, 2), (err) => {
+            if (err) {
+                res.status(500).send('Error writing JSON file');
+                return;
+            }
+
+            res.json(folders[folderIndex]);
+        });
+    });
+});
+
+
+app.put('/editFolderTeacher/:id', (req, res) => {
+    const { id } = req.params;
+    const updatedFolder = req.body;
+
+    fs.readFile(teacherChatPath, (err, data) => {
+        if (err) {
+            res.status(500).send('Error reading JSON file');
+            return;
+        }
+
+        const json = JSON.parse(data);
+        const folders = json.Folders;
+        const folderIndex = folders.findIndex(folder => folder.id === id);
+
+        if (folderIndex === -1) {
+            res.status(404).send('Folder not found');
+            return;
+        }
+
+        // 更新文件夹信息
+        folders[folderIndex] = { ...folders[folderIndex], ...updatedFolder };
+
+        fs.writeFile(teacherChatPath, JSON.stringify(json, null, 2), (err) => {
             if (err) {
                 res.status(500).send('Error writing JSON file');
                 return;
@@ -431,6 +609,41 @@ app.delete('/deleteFolder/:id', (req, res) => {
     });
 });
 
+app.delete('/deleteFolderTeacher/:id', (req, res) => {
+    const { id } = req.params;
+
+    fs.readFile(teacherChatPath, (err, data) => {
+        if (err) {
+            res.status(500).send('Error reading JSON file');
+            return;
+        }
+
+        const json = JSON.parse(data);
+        const folders = json.Folders;
+        const chats = json.Chats;
+
+        // 检查是否有属于该文件夹的聊天
+        const hasChats = chats.some(chat => chat.folderId === id);
+        if (hasChats) {
+            res.status(400).send('Cannot delete folder because it contains chats');
+            return;
+        }
+
+        // 删除文件夹
+        const updatedFolders = folders.filter(folder => folder.id !== id);
+        json.Folders = updatedFolders;
+
+        fs.writeFile(teacherChatPath, JSON.stringify(json, null, 2), (err) => {
+            if (err) {
+                res.status(500).send('Error writing JSON file');
+                return;
+            }
+
+            res.send('Folder deleted successfully');
+        });
+    });
+});
+
 
 app.post('/updateFoldersOrder', (req, res) => {
     const { Folders } = req.body;
@@ -452,6 +665,29 @@ app.post('/updateFoldersOrder', (req, res) => {
         });
     });
 });
+
+app.post('/updateFoldersOrderTeacher', (req, res) => {
+    const { Folders } = req.body;
+    fs.readFile(teacherChatPath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading file:', err);
+            return res.status(500).json({ error: 'An error occurred while reading the file.' });
+        }
+
+        const jsonData = JSON.parse(data);
+        jsonData.Folders = Folders;
+
+        fs.writeFile(teacherChatPath, JSON.stringify(jsonData, null, 2), 'utf8', (err) => {
+            if (err) {
+                console.error('Error writing file:', err);
+                return res.status(500).json({ error: 'An error occurred while writing to the file.' });
+            }
+            res.status(200).json({ message: 'File updated successfully' });
+        });
+    });
+});
+
+
 app.put('/updatePrompt/:id', (req, res) => {
     const { id } = req.params;
     const updatedPrompt = req.body;
