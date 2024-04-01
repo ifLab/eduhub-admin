@@ -15,6 +15,11 @@ const teacherChatPath =path.join(__dirname, '..', 'data', 'teacherChat.json');
 const promptPath =path.join(__dirname, '..', 'data', 'prompt.json');
 const helpPath =path.join(__dirname, '..', 'data', 'help.json');
 const lookPath =path.join(__dirname, '..', 'data', 'looks.json');
+const configPath =path.join(__dirname, '..', 'data', 'config.json');
+const whitelistPath =path.join(__dirname, '..', 'data', 'whitelist.json');
+const blacklistPath =path.join(__dirname, '..', 'data', 'blacklist.json');
+
+
 
 
 //后端
@@ -844,6 +849,131 @@ app.post('/saveAppearanceData', (req, res) => {
         }
     });
 });
+
+
+//config
+app.get('/getConfigData', (req, res) => {
+    const data = JSON.parse(fs.readFileSync(configPath));
+    res.json(data);
+});
+
+app.post('/saveConfigData', (req, res) => {
+    const newData = req.body;
+    fs.writeFile(configPath, JSON.stringify(newData), (err) => {
+        if (err) {
+            console.error('保存配置数据失败:', err);
+            res.status(500).send('保存失败');
+        } else {
+            res.json(newData);
+        }
+    });
+});
+
+//tianji
+app.get('/whitelist', (req, res) => {
+    fs.readFile(whitelistPath, 'utf8', (err, data) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+        const whitelist = JSON.parse(data);
+        res.json(whitelist);
+    });
+});
+
+app.post('/addwhitelist', (req, res) => {
+    const { record } = req.body;
+    fs.readFile(whitelistPath, 'utf8', (err, data) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+        const whitelist = JSON.parse(data);
+        whitelist.push(record);
+        fs.writeFile(whitelistPath, JSON.stringify(whitelist), (err) => {
+            if (err) {
+                console.error(err);
+                res.status(500).send('Internal Server Error');
+                return;
+            }
+            res.send('Record added successfully');
+        });
+    });
+});
+
+app.delete('/deletewhitelist/:id', (req, res) => {
+    const { id } = req.params;
+    fs.readFile(whitelistPath, 'utf8', (err, data) => {
+        if (err) {
+            res.status(500).send('Error reading data file');
+            return;
+        }
+        let jsonData = JSON.parse(data);
+        jsonData = jsonData.filter(item => item !== id);
+        fs.writeFile(whitelistPath, JSON.stringify(jsonData), 'utf8', (err) => {
+            if (err) {
+                res.status(500).send('Error writing to file');
+                return;
+            }
+            res.send('Data deleted successfully');
+        });
+    });
+});
+//tianjiablack
+app.get('/blacklist', (req, res) => {
+    fs.readFile(blacklistPath, 'utf8', (err, data) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+        const whitelist = JSON.parse(data);
+        res.json(whitelist);
+    });
+});
+
+app.post('/addblacklist', (req, res) => {
+    const { record } = req.body;
+    fs.readFile(blacklistPath, 'utf8', (err, data) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+        const blacklist = JSON.parse(data);
+        blacklist.push(record);
+        fs.writeFile(blacklistPath, JSON.stringify(blacklist), (err) => {
+            if (err) {
+                console.error(err);
+                res.status(500).send('Internal Server Error');
+                return;
+            }
+            res.send('Record added successfully');
+        });
+    });
+});
+
+app.delete('/deleteblacklist/:id', (req, res) => {
+    const { id } = req.params;
+    fs.readFile(blacklistPath, 'utf8', (err, data) => {
+        if (err) {
+            res.status(500).send('Error reading data file');
+            return;
+        }
+        let jsonData = JSON.parse(data);
+        jsonData = jsonData.filter(item => item !== id);
+        fs.writeFile(blacklistPath, JSON.stringify(jsonData), 'utf8', (err) => {
+            if (err) {
+                res.status(500).send('Error writing to file');
+                return;
+            }
+            res.send('Data deleted successfully');
+        });
+    });
+});
+
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
 });

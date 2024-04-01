@@ -14,10 +14,11 @@ import ApplicationPage  from "../../components/ApplicationPage";
 import IndexPage   from "../../components/IndexPage";
 import PromptsPage from "../../components/PromptsPage";
 import HelpPage from "../../components/HelpPage";
-import SetPage from "../../components/SetPage";
 import AppearancePage from "../../components/AppearancePage";
 import IndexTeacherPage from "../../components/IndexTeacherPage";
 import {useNavigate} from "react-router-dom";
+import SettingPage  from "../../components/SettingPage";
+import UserManagePage from "../../components/UserManagePage";
 
 const { Header, Content, Sider } = Layout;
 
@@ -115,8 +116,9 @@ const AdminPage = () => {
                         {selectedMenu === '2' && <IndexPage />}
                         {selectedMenu === '3' && <IndexTeacherPage />}
                         {selectedMenu === '4' && <PromptsPage />}
-                        {selectedMenu === '5' && <SetPage dataSource={dataSource}/>}
-                        {selectedMenu === '6' && <AppearancePage/>}
+                        {selectedMenu === '5' && <SettingPage />}
+                        {selectedMenu === '6' && <AppearancePage />}
+                        {selectedMenu === '7' && <UserManagePage/>}
                         {selectedMenu === '8' && <HelpPage />}
 
                     </Content>
