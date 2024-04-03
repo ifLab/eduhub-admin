@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {Card, Row, Col, Modal, Button, message, Form, Input} from 'antd';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { API_URL } from '../../config/config'
 
 const PromptsPage = () => {
     const [prompts, setPrompts] = useState([]);
@@ -13,7 +14,7 @@ const PromptsPage = () => {
     }, []);
 
     const fetchPrompts = () => {
-        fetch('http://localhost:3001/getPrompts')
+        fetch(`${API_URL}/getPrompts`)
             .then(response => response.json())
             .then(data => {
                 setPrompts(data.defaultPrompts);
@@ -37,7 +38,7 @@ const PromptsPage = () => {
         setIsModalVisible(false);
     };
     const addNewPrompt = (values) => {
-        fetch('http://localhost:3001/addPrompt', {
+        fetch(`${API_URL}/addPrompt`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -61,7 +62,7 @@ const PromptsPage = () => {
             });
     };
     const updatePrompt = (id, values) => {
-        fetch(`http://localhost:3001/updatePrompt/${id}`, {
+        fetch(`${API_URL}/updatePrompt/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -93,7 +94,7 @@ const PromptsPage = () => {
                 // TODO 删除逻辑，可能需要调用 API 删除后端数据
                 // setPrompts(prompts.filter(prompt => prompt.id !== id));
                 // message.success('Prompt deleted successfully');
-                fetch(`http://localhost:3001/deletePrompt/${id}`, {
+                fetch(`${API_URL}/deletePrompt/${id}`, {
                     method: 'DELETE',
                 })
                     .then(response => {
@@ -130,7 +131,7 @@ const PromptsPage = () => {
     };
 
     const updatePromptsOrderOnServer = (updatedPrompts) => {
-        fetch('http://localhost:3001/updatePromptsOrder', {
+        fetch(`${API_URL}/updatePromptsOrder`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

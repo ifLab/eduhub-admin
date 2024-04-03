@@ -1,5 +1,6 @@
     import React, {useEffect, useState} from 'react';
     import {Table, Button, Popconfirm, Form, Modal, Input, message} from 'antd';
+    import { API_URL } from '../../config/config'
 
     const ApplicationPage = () => {
 
@@ -37,7 +38,8 @@
         const [searchText, setSearchText] = useState('');
 
         const fetchData = () =>{
-            fetch('http://localhost:3001/getDify_keys')
+
+            fetch(`${API_URL}/getDify_keys`)
                 .then(response => response.json())
                 .then(data => {
                     console.log("data",data)
@@ -71,7 +73,7 @@
         };
         const handleDelete = (key) => {
             // const nameToDelete = data.find(item => item.key === key).name;
-            fetch('http://localhost:3001/deleteKeyData', {
+            fetch(`${API_URL}/deleteKeyData`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -107,7 +109,7 @@
                 .then(values => {
                     // 这里可以处理表单提交逻辑，例如更新数据
                     console.log('Received values of form: ', values);
-                    fetch('http://localhost:3001/updateKeysData', {
+                    fetch(`${API_URL}/updateKeysData`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -122,7 +124,7 @@
                         .then(message => {
                             console.log(message);
                             fetchData();
-                            return fetch('http://localhost:3001/editChatName', {
+                            return fetch(`${API_URL}/editChatName`, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -154,7 +156,7 @@
                 .validateFields()
                 .then(values => {
                     // 发送添加应用的请求到服务器
-                    fetch('http://localhost:3001/addApplication', {
+                    fetch(`${API_URL}/addApplication`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

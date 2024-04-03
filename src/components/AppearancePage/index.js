@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Input, Modal, message } from 'antd';
-
+import { API_URL } from '../../config/config'
 const AppearancePage = () => {
     const [appearanceData, setAppearanceData] = useState([]);
     const [showModal, setShowModal] = useState(false);
@@ -8,7 +8,7 @@ const AppearancePage = () => {
     const [showModalRow6, setShowModalRow6] = useState(false);
 
     useEffect(() => {
-        fetch('http://localhost:3001/getAppearanceData')
+        fetch(`${API_URL}/getAppearanceData`)
             .then(response => response.json())
             .then(data => setAppearanceData(data))
             .catch(error => console.error('获取外观数据失败:', error));
@@ -35,7 +35,7 @@ const AppearancePage = () => {
             }
         });
 
-        fetch('http://localhost:3001/saveAppearanceData', {
+        fetch(`${API_URL}/saveAppearanceData`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

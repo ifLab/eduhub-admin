@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {Button, Modal, Input, message} from 'antd';
 import helpData from '../../data/help.json'; // 引入帮助列表数据
+import { API_URL } from '../../config/config'
 
 const HelpPage = () => {
     const [data, setData] = useState(helpData);
@@ -33,7 +34,7 @@ const HelpPage = () => {
 
     useEffect(() => {
         if (isModified) {
-            fetch('http://localhost:3001/helpData', {
+            fetch(`${API_URL}/helpData`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

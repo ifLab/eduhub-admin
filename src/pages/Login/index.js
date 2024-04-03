@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import {Card, Form, Input, Button, message} from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../../config/config';
 
 function Login() {
     const [form] = Form.useForm();
     const navigate = useNavigate();
 
     const onFinish = (values) => {
-        fetch('http://localhost:3001/login', {
+        fetch(`${API_URL}/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

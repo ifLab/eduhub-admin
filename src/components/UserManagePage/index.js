@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Input, message,Row,Col} from 'antd';
+import { API_URL } from '../../config/config'
 
 const MainPage = () => {
     const [whiteData, setWhiteData] = useState([]);
@@ -22,7 +23,7 @@ const MainPage = () => {
 
     const fetchData = async () => {
         try {
-            const response = await fetch('http://localhost:3001/blacklist');
+            const response = await fetch(`${API_URL}/blacklist`);
             const jsonData = await response.json();
             setData(jsonData);
         } catch (error) {
@@ -32,7 +33,7 @@ const MainPage = () => {
 
     const fetchWhiteData = async () => {
         try {
-            const response = await fetch('http://localhost:3001/whitelist');
+            const response = await fetch(`${API_URL}/whitelist`);
             const jsonData = await response.json();
             setWhiteData(jsonData);
         } catch (error) {
@@ -47,7 +48,7 @@ const MainPage = () => {
 
     const confirmWhiteDelete = async () => {
         try {
-            const response = await fetch(`http://localhost:3001/deletewhitelist/${whiteDeleteId}`, {
+            const response = await fetch(`${API_URL}/deletewhitelist/${whiteDeleteId}`, {
                 method: 'DELETE'
             });
             if (response.ok) {
@@ -68,7 +69,7 @@ const MainPage = () => {
 
     const confirmWhiteAdd = async () => {
         try {
-            const response = await fetch('http://localhost:3001/addwhitelist', {
+            const response = await fetch(`${API_URL}/addwhitelist`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -110,7 +111,7 @@ const MainPage = () => {
 
     const confirmDelete = async () => {
         try {
-            const response = await fetch(`http://localhost:3001/deleteblacklist/${deleteId}`, {
+            const response = await fetch(`${API_URL}/deleteblacklist/${deleteId}`, {
                 method: 'DELETE'
             });
             if (response.ok) {
@@ -131,7 +132,7 @@ const MainPage = () => {
 
     const confirmAdd = async () => {
         try {
-            const response = await fetch('http://localhost:3001/addblacklist', {
+            const response = await fetch(`${API_URL}/addblacklist`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

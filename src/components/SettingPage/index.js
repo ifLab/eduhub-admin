@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Input, Modal, message } from 'antd';
-
+import { API_URL } from '../../config/config'
 const ConfigPage = () => {
     const [configData, setConfigData] = useState([]);
     const [showModal, setShowModal] = useState(false);
@@ -9,7 +9,7 @@ const ConfigPage = () => {
     const [showModalRow6, setShowModalRow6] = useState(false);
 
     useEffect(() => {
-        fetch('http://localhost:3001/getConfigData')
+        fetch(`${API_URL}/getConfigData`)
             .then(response => response.json())
             .then(data => setConfigData(data))
             .catch(error => console.error('获取配置数据失败:', error));
@@ -40,7 +40,7 @@ const ConfigPage = () => {
             }
         });
 
-        fetch('http://localhost:3001/saveConfigData', {
+        fetch(`${API_URL}/saveConfigData`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

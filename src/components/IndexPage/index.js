@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {Table, Button, Modal, Form, Input, Select, message} from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { API_URL } from '../../config/config'
 
 const IndexPage = () => {
     const [folders, setFolders] = useState([]);
@@ -19,7 +20,7 @@ const IndexPage = () => {
     const [folderForm] = Form.useForm(); // Ant Design Form实例
     const [currentFolder, setCurrentFolder] = useState(null); // 当前正在编辑的文件夹，nu
     const fetchAppNames = () => {
-        fetch('http://localhost:3001/getAppNames') // 假设这是获取应用名称列表的API
+        fetch(`${API_URL}/getAppNames`) // 假设这是获取应用名称列表的API
             .then(response => response.json())
             .then(data => {
                 setAppNames(data); // 假设返回的数据是应用名称列表
@@ -42,7 +43,7 @@ const IndexPage = () => {
     }, []);
 
     const getData = () => {
-        fetch('http://localhost:3001/getStudentChat')
+        fetch(`${API_URL}/getStudentChat`)
             .then(response => response.json())
             .then(data => {
                 console.log("data",data)
@@ -73,7 +74,7 @@ const IndexPage = () => {
                 return;
             }
 
-            fetch('http://localhost:3001/editChat', {
+            fetch(`${API_URL}/editChat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -115,7 +116,7 @@ const IndexPage = () => {
             cancelText: '取消',
             onOk: () => {
 
-                fetch(`http://localhost:3001/deleteChat/${id}`, {
+                fetch(`${API_URL}/deleteChat/${id}`, {
                     method: 'DELETE',
                 })
                     .then(response => {
@@ -155,7 +156,7 @@ const IndexPage = () => {
                 icon: values.icon,
                 folderId: values.folderId
             };
-            fetch('http://localhost:3001/addChat', {
+            fetch(`${API_URL}/addChat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -201,7 +202,7 @@ const IndexPage = () => {
             deletable: folder.deletable.toString() === 'true', // 将字符串转换为布尔值
         };
 
-        fetch('http://localhost:3001/addFolder', {
+        fetch(`${API_URL}/addFolder`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -225,7 +226,7 @@ const IndexPage = () => {
 
 // 处理编辑文件夹
     const handleEditFolder = (id, folder) => {
-        fetch(`http://localhost:3001/editFolder/${id}`, {
+        fetch(`${API_URL}/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -255,7 +256,7 @@ const IndexPage = () => {
             title: '确定要删除这个文件夹吗？',
             content: '此操作不可撤销',
             onOk: () => {
-                fetch(`http://localhost:3001/deleteFolder/${folderId}`, {
+                fetch(`${API_URL}/deleteFolder/${folderId}`, {
                     method: 'DELETE',
                 })
                     .then(response => {
@@ -382,7 +383,7 @@ const IndexPage = () => {
     };
 
     const updateFoldersOnServer = (folders) => {
-        fetch('http://localhost:3001/updateFoldersOrder', {
+        fetch(`${API_URL}/updateFoldersOrder`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
