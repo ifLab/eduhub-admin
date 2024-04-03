@@ -9,15 +9,21 @@ const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const {message} = require("antd");
 const filePath = path.join(__dirname, '..', 'data', 'account.json');
-const dify_keys = path.join(__dirname, '..', 'data', 'dify_keys.json');
-const studentChatPath =path.join(__dirname, '..', 'data', 'studentChat.json');
-const teacherChatPath =path.join(__dirname, '..', 'data', 'teacherChat.json');
-const promptPath =path.join(__dirname, '..', 'data', 'prompt.json');
+// const dify_keys = path.join(__dirname, '..', 'data', 'dify_keys.json');
+const dify_keys = '../../../chatbot-ui/dify_keys.json';
+// const studentChatPath =path.join(__dirname, '..', 'data', 'studentChat.json');
+const studentChatPath = '../../../chatbot-ui/studentChat.json';
+// const teacherChatPath =path.join(__dirname, '..', 'data', 'teacherChat.json');
+const teacherChatPath = '../../../chatbot-ui/teacherChat.json';
+// const promptPath =path.join(__dirname, '..', 'data', 'prompt.json');
+const promptPath = '../../../chatbot-ui/prompt.json';
 const helpPath =path.join(__dirname, '..', 'data', 'help.json');
 const lookPath =path.join(__dirname, '..', 'data', 'looks.json');
 const configPath =path.join(__dirname, '..', 'data', 'config.json');
-const whitelistPath =path.join(__dirname, '..', 'data', 'whitelist.json');
-const blacklistPath =path.join(__dirname, '..', 'data', 'blacklist.json');
+// const whitelistPath =path.join(__dirname, '..', 'data', 'whitelist.json');
+const whitelistPath = '../../../chatbot-ui/whitelist.json';
+// const blacklistPath =path.join(__dirname, '..', 'data', 'blacklist.json');
+const blacklistPath = '../../../chatbot-ui/blacklist.json';
 
 
 
