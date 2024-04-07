@@ -27,15 +27,6 @@ const IndexPage = () => {
             })
             .catch(error => console.error('Failed to fetch app names:', error));
     };
-    // 假设 jsonData 是从文件、API 或其他方式获取的 JSON 数据
-    const jsonData = {
-        "Folders": [
-            // Folders 数据...
-        ],
-        "Chats": [
-            // Chats 数据...
-        ]
-    };
     //获取studentChat数据
     useEffect(() => {
         getData();
@@ -178,11 +169,6 @@ const IndexPage = () => {
         });
     };
 
-    const showEditFolderModal = (folder) => {
-        setCurrentFolder(folder);
-        setIsEditFolderModalVisible(true);
-        // 这里可以设置表单的初始值
-    };
 
     const showFolderModal = (folder) => {
         setCurrentFolder(folder); // 设置当前正在编辑的文件夹，如果是添加操作，则为null
@@ -422,6 +408,7 @@ const IndexPage = () => {
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
+
                         className={className}
                         style={{
                             ...style,

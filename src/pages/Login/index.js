@@ -2,12 +2,16 @@ import React, { useState } from 'react';
 import {Card, Form, Input, Button, message} from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { API_URL } from '../../config/config';
+import bcrypt from 'bcryptjs';
 
 function Login() {
     const [form] = Form.useForm();
     const navigate = useNavigate();
 
+
     const onFinish = (values) => {
+        // const hashedPassword = bcrypt.hashSync("admin123", salt);
+        // console.log("hashedPassword",hashedPassword)
         fetch(`${API_URL}/login`, {
             method: 'POST',
             headers: {

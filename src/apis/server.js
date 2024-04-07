@@ -9,23 +9,23 @@ const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const {message} = require("antd");
 const filePath = path.join(__dirname, '..', 'data', 'account.json');
-// const dify_keys = path.join(__dirname, '..', 'data', 'dify_keys.json');
-const dify_keys = '../../../chatbot-ui/dify_keys.json';
-// const studentChatPath =path.join(__dirname, '..', 'data', 'studentChat.json');
-const studentChatPath = '../../../chatbot-ui/studentChat.json';
-// const teacherChatPath =path.join(__dirname, '..', 'data', 'teacherChat.json');
-const teacherChatPath = '../../../chatbot-ui/teacherChat.json';
-// const promptPath =path.join(__dirname, '..', 'data', 'prompt.json');
-const promptPath = '../../../chatbot-ui/prompt.json';
+const dify_keys = path.join(__dirname, '..', 'data', 'dify_keys.json');
+// const dify_keys = '../../../chatbot-ui/dify_keys.json';
+const studentChatPath =path.join(__dirname, '..', 'data', 'studentChat.json');
+// const studentChatPath = '../../../chatbot-ui/studentChat.json';
+const teacherChatPath =path.join(__dirname, '..', 'data', 'teacherChat.json');
+// const teacherChatPath = '../../../chatbot-ui/teacherChat.json';
+const promptPath =path.join(__dirname, '..', 'data', 'prompt.json');
+// const promptPath = '../../../chatbot-ui/prompt.json';
 const helpPath =path.join(__dirname, '..', 'data', 'help.json');
 const lookPath =path.join(__dirname, '..', 'data', 'looks.json');
 const configPath =path.join(__dirname, '..', 'data', 'config.json');
-// const whitelistPath =path.join(__dirname, '..', 'data', 'whitelist.json');
-const whitelistPath = '../../../chatbot-ui/whitelist.json';
-// const blacklistPath =path.join(__dirname, '..', 'data', 'blacklist.json');
-const blacklistPath = '../../../chatbot-ui/blacklist.json';
+const whitelistPath =path.join(__dirname, '..', 'data', 'whitelist.json');
+// const whitelistPath = '../../../chatbot-ui/whitelist.json';
+const blacklistPath =path.join(__dirname, '..', 'data', 'blacklist.json');
+// const blacklistPath = '../../../chatbot-ui/blacklist.json';
 
-
+const bcrypt = require('bcryptjs');
 
 
 //后端
@@ -38,10 +38,11 @@ app.post('/login', (req, res) => {
     console.log(req.body);
     const { username, password } = req.body;
     const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-    const user = data.users.find(u => u.username === username && u.password === password);
+    const salt="$2a$10$lAOe6jrPoDOI4tJarzjpBO";
+    const user = data.users.find(u => u.username === username );
     console.log("@@@@@@@@@@@@@@@@@")
 
-    if (user) {
+    if (user &&  bcrypt.compareSync(password, user.password)) {
         res.json({ success: true, message: '登录成功' });
     } else {
         res.status(401).json({ success: false, message: '用户名或密码错误' });
@@ -439,6 +440,7 @@ app.get('/getPrompts', (req, res) => {
     });
 });
 
+
 app.post('/addFolder', (req, res) => {
     const { name, type, deletable } = req.body;
 
@@ -703,14 +705,14 @@ app.put('/updatePrompt/:id', (req, res) => {
     const { id } = req.params;
     const updatedPrompt = req.body;
 
-    fs.readFile(promptPath, (err, data) => {
+    fs.readFile(promptPath, 'utf8', (err, data) => {
         if (err) {
             res.status(500).send('Error reading data file');
             return;
         }
 
         let jsonData = JSON.parse(data);
-        let prompts = jsonData.defaultPrompts;
+        let prompts = jsonData.Prompts;
         const promptIndex = prompts.findIndex(prompt => prompt.id === id);
 
         if (promptIndex === -1) {
@@ -719,7 +721,7 @@ app.put('/updatePrompt/:id', (req, res) => {
         }
 
         prompts[promptIndex] = { ...prompts[promptIndex], ...updatedPrompt };
-        jsonData.defaultPrompts = prompts;
+        jsonData.Prompts = prompts;
 
         fs.writeFile(promptPath, JSON.stringify(jsonData, null, 2), (err) => {
             if (err) {
@@ -734,14 +736,14 @@ app.put('/updatePrompt/:id', (req, res) => {
 app.delete('/deletePrompt/:id', (req, res) => {
     const { id } = req.params;
 
-    fs.readFile(promptPath, (err, data) => {
+    fs.readFile(promptPath, 'utf8', (err, data) => {
         if (err) {
             res.status(500).send('Error reading data file');
             return;
         }
 
         let jsonData = JSON.parse(data);
-        const prompts = jsonData.defaultPrompts;
+        const prompts = jsonData.Prompts;
         const filteredPrompts = prompts.filter(prompt => prompt.id !== id);
 
         if (prompts.length === filteredPrompts.length) {
@@ -749,7 +751,7 @@ app.delete('/deletePrompt/:id', (req, res) => {
             return;
         }
 
-        jsonData.defaultPrompts = filteredPrompts;
+        jsonData.Prompts = filteredPrompts;
 
         fs.writeFile(promptPath, JSON.stringify(jsonData, null, 2), (err) => {
             if (err) {
@@ -763,17 +765,16 @@ app.delete('/deletePrompt/:id', (req, res) => {
 
 app.post('/addPrompt', (req, res) => {
     const newPrompt = req.body;
-    // 生成一个简单的UUID，实际应用中可能需要更复杂的生成逻辑
-    newPrompt.id = uuidv4();
+    newPrompt.id = uuidv4(); // 生成一个简单的UUID
 
-    fs.readFile(promptPath, (err, data) => {
+    fs.readFile(promptPath, 'utf8', (err, data) => {
         if (err) {
             res.status(500).send('Error reading data file');
             return;
         }
 
         const jsonData = JSON.parse(data);
-        jsonData.defaultPrompts.push(newPrompt);
+        jsonData.Prompts.push(newPrompt); // 添加到Prompts数组
 
         fs.writeFile(promptPath, JSON.stringify(jsonData, null, 2), (err) => {
             if (err) {
@@ -785,32 +786,29 @@ app.post('/addPrompt', (req, res) => {
     });
 });
 
-app.post('/updatePromptsOrder', (req, res) => {
-    const updatedData = req.body;
+app.post('/updatePromptsOrder', async (req, res) => {
+    const { updatedFolders } = req.body;
 
-    fs.readFile(promptPath, (err, data) => {
-        if (err) {
-            console.error('Failed to read file:', err);
-            return res.status(500).send('Failed to read file');
-        }
-
+    try {
+        const data = await fs.promises.readFile(promptPath, 'utf8');
         const jsonData = JSON.parse(data);
-        jsonData.defaultPrompts = updatedData.defaultPrompts; // 更新数据
 
-        fs.writeFile(promptPath, JSON.stringify(jsonData, null, 2), (err) => {
-            if (err) {
-                console.error('Failed to write file:', err);
-                return res.status(500).send('Failed to write file');
-            }
-
-            res.send({ message: 'Prompts order updated successfully' });
+        updatedFolders.forEach(updatedFolder => {
+            updatedFolder.prompts.forEach((promptId, index) => {
+                const promptIndex = jsonData.Prompts.findIndex(prompt => prompt.id === promptId);
+                if (promptIndex !== -1) {
+                    jsonData.Prompts[promptIndex].order = index;
+                }
+            });
         });
-    });
+
+        await fs.promises.writeFile(promptPath, JSON.stringify(jsonData, null, 2));
+        res.send({ message: 'Prompts order and folders updated successfully' });
+    } catch (err) {
+        console.error('Failed to update prompts order:', err);
+        res.status(500).send('Failed to process the request');
+    }
 });
-
-
-
-
 
 
 

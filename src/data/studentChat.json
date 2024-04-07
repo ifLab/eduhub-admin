@@ -7,14 +7,14 @@
       "deletable": false
     },
     {
-      "id": "5786786f-f7eb-4d18-9e40-59ee4cfe5366",
-      "name": "课程助教",
+      "id": "6B0BD3CE-057D-4008-B78B-07A3D738DC3D",
+      "name": "教师应用",
       "type": "chat",
       "deletable": false
     },
     {
-      "id": "6B0BD3CE-057D-4008-B78B-07A3D738DC3D",
-      "name": "教师应用",
+      "id": "5786786f-f7eb-4d18-9e40-59ee4cfe5366",
+      "name": "课程助教",
       "type": "chat",
       "deletable": false
     },
