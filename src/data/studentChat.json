@@ -1,135 +1,48 @@
 {
   "Folders": [
     {
-      "id": "ad308d23-9f8a-495c-8211-d54448e13684",
-      "name": "校园助手",
+      "id": "4576D839-C2C4-41C3-A4B4-11C18000DFD1",
+      "name": "教师助手",
       "type": "chat",
       "deletable": false
     },
     {
-      "id": "6B0BD3CE-057D-4008-B78B-07A3D738DC3D",
-      "name": "教师应用",
-      "type": "chat",
-      "deletable": false
-    },
-    {
-      "id": "5786786f-f7eb-4d18-9e40-59ee4cfe5366",
-      "name": "课程助教",
-      "type": "chat",
-      "deletable": false
-    },
-    {
-      "id": "81E69505-93B7-474A-BB13-8283472B280E",
-      "name": "学生应用",
+      "id": "C12033A1-92B0-44BC-9506-9350AF020894",
+      "name": "知识库",
       "type": "chat",
       "deletable": false
     }
   ],
   "Chats": [
     {
-      "id": "73B2E1EC-E050-4C8A-9423-9B66DAC78A2F",
-      "name": "智能助理",
-      "folderId": "ad308d23-9f8a-495c-8211-d54448e13684"
+      "id": "0601CF20-E5A3-4FB9-A3FE-4DACFD25F6EE",
+      "name": "课程规划",
+      "folderId": "4576D839-C2C4-41C3-A4B4-11C18000DFD1"
     },
     {
-      "id": "5edf4dcf-20cd-4266-a22e-20ae94f5089b",
-      "name": "信息网络问答",
-      "folderId": "ad308d23-9f8a-495c-8211-d54448e13684"
+      "id": "CB4AF4E9-B702-4214-A0C6-A71602742F51",
+      "name": "挑战识别",
+      "folderId": "4576D839-C2C4-41C3-A4B4-11C18000DFD1"
     },
     {
-      "id": "DA5541BE-4E47-4596-B5A7-3A188D7BD607",
-      "folderId": "ad308d23-9f8a-495c-8211-d54448e13684",
-      "name": "教师问答"
+      "id": "DC8C8C0C-69BC-4515-8860-970DDA762C32",
+      "name": "测试生成4561",
+      "folderId": "4576D839-C2C4-41C3-A4B4-11C18000DFD1"
     },
     {
-      "id": "cc0a5515-12b8-4e50-bedb-90547fb72d59",
-      "name": "学生问答",
-      "folderId": "ad308d23-9f8a-495c-8211-d54448e13684"
+      "id": "4A57A97D-C037-48B3-8B05-385DC458F0B8",
+      "name": "智能助手",
+      "folderId": "C12033A1-92B0-44BC-9506-9350AF020894"
     },
     {
-      "id": "589FC1BB-7B36-4D86-A393-1EE8E4CAA6DC",
-      "folderId": "5786786f-f7eb-4d18-9e40-59ee4cfe5366",
-      "name": "软件工程测试"
+      "id": "6B456DA3-1C5F-4200-A147-FDF286EAF3EB",
+      "name": "课程助教",
+      "folderId": "C12033A1-92B0-44BC-9506-9350AF020894"
     },
     {
-      "id": "5d1c0466-729f-4c41-ba79-b947523749b3",
-      "name": "开源软件开发技术",
-      "folderId": "5786786f-f7eb-4d18-9e40-59ee4cfe5366"
-    },
-    {
-      "id": "B919E2A0-D342-4E39-988A-496BBD4BA8DE",
-      "folderId": "81E69505-93B7-474A-BB13-8283472B280E",
-      "name": "情境扮演"
-    },
-    {
-      "id": "46F75958-DAF5-441D-A93F-86FB890B3E76",
-      "folderId": "81E69505-93B7-474A-BB13-8283472B280E",
-      "name": "同伴教学"
-    },
-    {
-      "id": "9C3A8B95-3ED2-4F58-84AD-931279D6E091",
-      "folderId": "81E69505-93B7-474A-BB13-8283472B280E",
-      "name": "决策讨论"
-    },
-    {
-      "id": "F07CD9D7-E91E-4E3F-A3BD-06C1E2D52A93",
-      "folderId": "81E69505-93B7-474A-BB13-8283472B280E",
-      "name": "特长识别"
-    },
-    {
-      "id": "825DACC5-3352-445F-8A56-F307B362F69C",
-      "folderId": "81E69505-93B7-474A-BB13-8283472B280E",
-      "name": "项目预演"
-    },
-    {
-      "id": "8A492A50-F949-4B27-B65D-857AFD2956D4",
-      "folderId": "81E69505-93B7-474A-BB13-8283472B280E",
-      "name": "团队反思"
-    },
-    {
-      "id": "CDAA8CC3-8584-4B2A-9AB2-4B9270C657E9",
-      "folderId": "81E69505-93B7-474A-BB13-8283472B280E",
-      "name": "概念理解"
-    },
-    {
-      "id": "6F67A7B2-DA3F-4C5F-827D-329D3A5F3A56",
-      "folderId": "81E69505-93B7-474A-BB13-8283472B280E",
-      "name": "写作导师"
-    },
-    {
-      "id": "4D624DAD-BE65-416E-98C3-5A3CD2838E48",
-      "folderId": "6B0BD3CE-057D-4008-B78B-07A3D738DC3D",
-      "name": "作业构思"
-    },
-    {
-      "id": "7B32E5F7-310C-4D39-9D7F-D9C91BC5CE18",
-      "folderId": "6B0BD3CE-057D-4008-B78B-07A3D738DC3D",
-      "name": "学生辅导"
-    },
-    {
-      "id": "EA06E90C-9B15-49BA-986B-2488CAFCC950",
-      "folderId": "6B0BD3CE-057D-4008-B78B-07A3D738DC3D",
-      "name": "概念解释"
-    },
-    {
-      "id": "6DB63710-E853-4BB1-8BCE-B6FABD2F993D",
-      "folderId": "6B0BD3CE-057D-4008-B78B-07A3D738DC3D",
-      "name": "讲座设计"
-    },
-    {
-      "id": "1EDB50EF-8CCE-4AA0-B1D0-5DAFB4F64865",
-      "folderId": "6B0BD3CE-057D-4008-B78B-07A3D738DC3D",
-      "name": "课程计划"
-    },
-    {
-      "id": "AA0C5ED0-F8CC-4C0A-9A54-7680EB1A97F8",
-      "folderId": "6B0BD3CE-057D-4008-B78B-07A3D738DC3D",
-      "name": "会议总结"
-    },
-    {
-      "id": "3A6FB047-B273-4F6B-8AEC-FC6F80B84933",
-      "folderId": "6B0BD3CE-057D-4008-B78B-07A3D738DC3D",
-      "name": "测验生成"
+      "id": "0939C210-3A3F-4B78-A3E4-DF00DA6D32D3",
+      "name": "校园助手",
+      "folderId": "C12033A1-92B0-44BC-9506-9350AF020894"
     }
   ]
 }

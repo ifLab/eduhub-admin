@@ -10,6 +10,9 @@ function Login() {
     const onFinish = (values) => {
         // const hashedPassword = bcrypt.hashSync("admin123", salt);
         // console.log("hashedPassword",hashedPassword)
+
+
+
         fetch(`${API_URL}/login`, {
             method: 'POST',
             headers: {

@@ -8,21 +8,22 @@ const path = require('path');
 // const uuidv4 = require("uuidv4");
 const { v4: uuidv4 } = require('uuid');
 const filePath = path.join(__dirname, '..', 'data', 'account.json');
-const dify_keys = path.join(__dirname, '..', 'data', 'dify_keys.json');
-// const dify_keys = '../../../chatbot-ui/dify_keys.json';
-const studentChatPath =path.join(__dirname, '..', 'data', 'studentChat.json');
-// const studentChatPath = '../../../chatbot-ui/studentChat.json';
-const teacherChatPath =path.join(__dirname, '..', 'data', 'teacherChat.json');
-// const teacherChatPath = '../../../chatbot-ui/teacherChat.json';
-const promptPath =path.join(__dirname, '..', 'data', 'prompt.json');
-// const promptPath = '../../../chatbot-ui/prompt.json';
+// const dify_keys = path.join(__dirname, '..', 'data', 'dify_keys.json');
+const dify_keys = '../../../chatbot-ui/dify_keys.json';
+// const studentChatPath =path.join(__dirname, '..', 'data', 'studentChat.json');
+const studentChatPath = '../../../chatbot-ui/studentChat.json';
+// const teacherChatPath =path.join(__dirname, '..', 'data', 'teacherChat.json');
+const teacherChatPath = '../../../chatbot-ui/teacherChat.json';
+// const promptPath =path.join(__dirname, '..', 'data', 'prompt.json');
+const promptPath = '../../../chatbot-ui/prompt.json';
 const helpPath =path.join(__dirname, '..', 'data', 'help.json');
 const lookPath =path.join(__dirname, '..', 'data', 'looks.json');
 const configPath =path.join(__dirname, '..', 'data', 'config.json');
-const whitelistPath =path.join(__dirname, '..', 'data', 'whitelist.json');
-// const whitelistPath = '../../../chatbot-ui/whitelist.json';
-const blacklistPath =path.join(__dirname, '..', 'data', 'blacklist.json');
-// const blacklistPath = '../../../chatbot-ui/blacklist.json';
+// const whitelistPath =path.join(__dirname, '..', 'data', 'whitelist.json');
+const whitelistPath = '../../../chatbot-ui/whitelist.json';
+// const blacklistPath =path.join(__dirname, '..', 'data', 'blacklist.json');
+const blacklistPath = '../../../chatbot-ui/blacklist.json';
+const openAiTsFile= '../../../chatbot-ui/types/openai.ts';
 
 const bcrypt = require('bcryptjs');
 
@@ -30,6 +31,21 @@ const bcrypt = require('bcryptjs');
 //后端
 app.use(cors());
 app.use(bodyParser.json());
+
+
+//读取openAiTs文件内容
+app.get('/read-openai-file', (req, res) => {
+
+    fs.readFile(openAiTsFile, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading file:', err);
+            return res.status(500).send('An error occurred while reading the file.');
+        }
+
+        res.type('text/plain'); // 设置响应类型为纯文本，因为我们正在读取一个TypeScript文件
+        res.send(data); // 发送文件内容作为响应
+    });
+});
 
 // 登录接口
 app.post('/login', (req, res) => {
@@ -60,11 +76,22 @@ app.get('/getDify_keys', (req, res) => {
     });
 });
 
-// 更新dify_keys数据
+app.get('/TestTs', (req, res) => {
+    fs.readFile(dify_keys, 'utf8', (err, data) => {
+        if (err) {
+            res.status(500).send('Error reading data file');
+            return;
+        }
+        res.json(JSON.parse(data));
+        console.log("res.json",res.json)
+    });
+});
+
+
 app.post('/updateKeysData', (req, res) => {
     const { originalName, newName, newValue } = req.body;
-    // const filePath = path.join(__dirname, 'data.json');
-    // 先读取现有的文件内容
+
+    // 先更新dify_keys.json
     fs.readFile(dify_keys, 'utf8', (err, data) => {
         if (err) {
             console.error(err);
@@ -73,23 +100,57 @@ app.post('/updateKeysData', (req, res) => {
         }
 
         const jsonData = JSON.parse(data);
-        // 如果原始名称和新名称不同，且新名称不为空，则处理键的修改
         if (originalName !== newName && newName.trim() !== "") {
             delete jsonData[originalName]; // 删除旧键
             jsonData[newName] = newValue; // 添加新键
         } else {
-            // 如果名称未改变，只更新值
-            jsonData[originalName] = newValue;
+            jsonData[originalName] = newValue; // 只更新值
         }
 
-        // 将更新后的数据写回文件
         fs.writeFile(dify_keys, JSON.stringify(jsonData, null, 2), 'utf8', (err) => {
             if (err) {
                 console.error(err);
                 res.status(500).send('Error writing to file');
                 return;
             }
-            res.send('Data updated successfully');
+
+            // 现在更新openai.ts文件
+            fs.readFile(openAiTsFile, 'utf8', (err, fileContent) => {
+                if (err) {
+                    console.error(err);
+                    res.status(500).send('Error reading openai.ts');
+                    return;
+                }
+
+                // 更新OpenAIModelID枚举成员
+                const enumPattern = new RegExp(`(${originalName}\\s+=\\s+')${originalName}(',)`, 'g');
+                fileContent = fileContent.replace(enumPattern, `${newName} = '${newName}'$2`);
+
+                const modelPattern = new RegExp(`\\[OpenAIModelID.${originalName}\\]:\\s+{[^}]+},?\\s+`, 'g');
+                fileContent = fileContent.replace(modelPattern, '');
+
+                // 添加新的OpenAIModels属性
+                fileContent += `
+[OpenAIModelID.${newName}]: {
+    id: OpenAIModelID.${newName},
+    name: '${newName}',
+    maxLength: 12000,
+    tokenLimit: 4000,
+    key: keys['${newName}'] || process.env.DIFY_API_KEY || '',
+},`;
+
+                // 更新OpenAIModels对象中的key属性不需要额外的正则替换，因为key的更新已经在上面的代码中处理
+
+                // 写回更新后的openai.ts
+                fs.writeFile(openAiTsFile, fileContent, 'utf8', (err) => {
+                    if (err) {
+                        console.error(err);
+                        res.status(500).send('Error writing to openai.ts');
+                        return;
+                    }
+                    res.send('Data updated successfully');
+                });
+            });
         });
     });
 });
@@ -131,68 +192,23 @@ app.post('/editChatName', (req, res) => {
 app.post('/deleteKeyData', (req, res) => {
     const { name } = req.body;
 
-    fs.readFile(studentChatPath, 'utf8', (err, data) => {
-        if (err) {
-            console.error(err);
-            res.status(500).send('Error reading studentChat.json');
-            return;
-        }
-
-        const studentChatData = JSON.parse(data);
-        const chatExists = studentChatData.Chats.some(chat => chat.name === name);
-
-        if (chatExists) {
-            res.status(400).send('删除失败,该应用已存在');
-            return;
-        }
-        fs.readFile(dify_keys, 'utf8', (err, data) => {
-            if (err) {
-                console.error(err);
-                res.status(500).send('Error reading from file');
-                return;
-            }
-            const jsonData = JSON.parse(data);
-
-            // 检查要删除的键是否存在
-            if (jsonData.hasOwnProperty(name)) {
-                // 删除键
-                delete jsonData[name];
-                // 将更新后的数据写回文件
-                fs.writeFile(dify_keys, JSON.stringify(jsonData, null, 2), 'utf8', (err) => {
-                    if (err) {
-                        // console.error(err);
-                        res.status(500).send('Error writing to file');
-                        return;
-                    }
-                    res.send('Data deleted successfully');
-                });
-            } else {
-                res.status(404).send('Key not found');
-            }
-        });
-    });
-    // 读取现有数据
-
-});
-// 添加dify_keys数据
-app.post('/addApplication', (req, res) => {
-    const { name, api } = req.body;
-    // 读取现有数据
+    // 先处理dify_keys.json
     fs.readFile(dify_keys, 'utf8', (err, data) => {
         if (err) {
             console.error(err);
             res.status(500).send('Error reading from file');
             return;
         }
-
         const jsonData = JSON.parse(data);
-        // 检查要添加的键是否已存在
-        if (jsonData.hasOwnProperty(name)) {
-            res.status(400).send('Application already exists');
+
+        // 检查要删除的键是否存在
+        if (!jsonData.hasOwnProperty(name)) {
+            res.status(404).send('Key not found');
             return;
         }
-        // 添加新的应用信息
-        jsonData[name] = api;
+
+        // 删除键
+        delete jsonData[name];
 
         // 将更新后的数据写回文件
         fs.writeFile(dify_keys, JSON.stringify(jsonData, null, 2), 'utf8', (err) => {
@@ -201,10 +217,100 @@ app.post('/addApplication', (req, res) => {
                 res.status(500).send('Error writing to file');
                 return;
             }
-            res.send('Application added successfully');
+
+            // 现在处理openai.ts文件
+            fs.readFile(openAiTsFile, 'utf8', (err, fileContent) => {
+                if (err) {
+                    console.error(err);
+                    res.status(500).send('Error reading openai.ts');
+                    return;
+                }
+
+                // 删除OpenAIModelID枚举成员
+                const enumPattern = new RegExp(`\\s+${name}\\s+=\\s+'${name}',?\\n`, 'g');
+                fileContent = fileContent.replace(enumPattern, '');
+
+                // 删除OpenAIModels对象中的属性
+                const modelPattern = new RegExp(`\\s+\\[OpenAIModelID.${name}\\]:\\s+{[\\s\\S]+?\\},?\\n`, 'g');
+                fileContent = fileContent.replace(modelPattern, '');
+
+                // 写回更新后的openai.ts
+                fs.writeFile(openAiTsFile, fileContent, 'utf8', (err) => {
+                    if (err) {
+                        console.error(err);
+                        res.status(500).send('Error writing to openai.ts');
+                        return;
+                    }
+                    res.send('Data deleted successfully');
+                });
+            });
         });
     });
 });
+
+
+// 添加dify_keys数据
+app.post('/addApplication', (req, res) => {
+    const { name, api } = req.body;
+
+    // 读取并更新dify_keys.json
+    fs.readFile(dify_keys, 'utf8', (err, data) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Error reading from file');
+            return;
+        }
+
+        const jsonData = JSON.parse(data);
+        if (jsonData.hasOwnProperty(name)) {
+            res.status(400).send('Application already exists');
+            return;
+        }
+        jsonData[name] = api;
+
+        fs.writeFile(dify_keys, JSON.stringify(jsonData, null, 2), 'utf8', (err) => {
+            if (err) {
+                console.error(err);
+                res.status(500).send('Error writing to file');
+                return;
+            }
+
+            // 读取并更新openai.ts
+            fs.readFile(openAiTsFile, 'utf8', (err, fileContent) => {
+                if (err) {
+                    console.error(err);
+                    res.status(500).send('Error reading openai.ts');
+                    return;
+                }
+
+                // 插入新的枚举成员到OpenAIModelID
+                const enumPattern = /export enum OpenAIModelID {([\s\S]*?)\n}/;
+                const enumMatch = fileContent.match(enumPattern);
+                if (enumMatch) {
+                    const newEnumMember = `\n  ${name} = '${name}',\n`;
+                    const newEnumString = enumMatch[0].replace(/\n}/, `${newEnumMember}}`);
+                    fileContent = fileContent.replace(enumPattern, newEnumString);
+                }
+
+                // 插入新的OpenAIModels对象属性
+                const modelInsertPoint = fileContent.indexOf('};', fileContent.lastIndexOf('export const OpenAIModels'));
+                const newModelObject = `  [OpenAIModelID.${name}]: {\n    id: OpenAIModelID.${name},\n    name: '${name}',\n    maxLength: 12000,\n    tokenLimit: 4000,\n    key: keys['${name}'] || process.env.DIFY_API_KEY || '',\n  },\n`;
+                const finalUpdatedContent = [fileContent.slice(0, modelInsertPoint), newModelObject, fileContent.slice(modelInsertPoint)].join('');
+
+                // 写回更新后的openai.ts
+                fs.writeFile(openAiTsFile, finalUpdatedContent, 'utf8', (err) => {
+                    if (err) {
+                        console.error(err);
+                        res.status(500).send('Error writing to openai.ts');
+                        return;
+                    }
+                    res.send('Application added successfully');
+                });
+            });
+        });
+    });
+});
+
 // 获取studentChat数据
 app.get('/getStudentChat', (req, res) => {
     fs.readFile(studentChatPath, 'utf8', (err, data) => {

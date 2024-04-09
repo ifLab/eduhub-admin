@@ -21,7 +21,6 @@ const PromptsPage = () => {
     }, []);
 
 
-
     const fetchPrompts = async () => {
         try {
             const response = await fetch(`${API_URL}/getPrompts`);
