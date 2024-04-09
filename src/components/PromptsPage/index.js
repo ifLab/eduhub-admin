@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Select, message } from 'antd';
+import {Table, Button, Modal, Form, Input, Select, message, Popconfirm, Switch} from 'antd';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { API_URL } from '../../config/config';
 
@@ -10,10 +10,17 @@ const PromptsPage = () => {
     const [currentPrompt, setCurrentPrompt] = useState(null);
     const [form] = Form.useForm();
     const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+    const [isAddFolderModalVisible, setIsAddFolderModalVisible] = useState(false);
+    const [isEditFolderModalVisible, setIsEditFolderModalVisible] = useState(false);
+    const [editingFolder, setEditingFolder] = useState(null);
+    const [addFolderForm] = Form.useForm();
+    const [editFolderForm] = Form.useForm();
 
     useEffect(() => {
         fetchPrompts();
     }, []);
+
+
 
     const fetchPrompts = async () => {
         try {
@@ -84,7 +91,7 @@ const PromptsPage = () => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
-                    return response.json();
+                return response.json();
             })
             .then(data => {
                 message.success('提示词更新成功!');
@@ -96,6 +103,111 @@ const PromptsPage = () => {
                 message.error('更新提示词失败');
             });
     }
+
+    const showAddFolderModal = () => {
+        setIsAddFolderModalVisible(true);
+    };
+
+
+    const handleDeleteFolder = async (folderId) => {
+        console.log("folderId",folderId)
+        Modal.confirm({
+            title: '确定要删除这个文件夹吗？',
+            content: '此操作不可撤销',
+            onOk: async () => {
+                try {
+                    const response = await fetch(`${API_URL}/deletePromptFolder/${folderId}`, {
+                        method: 'DELETE',
+                    });
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(errorText || 'Network response was not ok');
+                    }
+                    message.success("文件夹删除成功");
+                    fetchPrompts(); // 重新获取数据以更新UI
+                } catch (error) {
+                    console.error('Failed to delete folder:', error);
+                    message.error("删除文件夹失败: " + error.message);
+                }
+            },
+        });
+    };
+
+    const showEditFolderModal = (folder) => {
+        setEditingFolder(folder);
+        setIsEditFolderModalVisible(true);
+        editFolderForm.setFieldsValue(folder);
+    };
+
+    const folderColumns = [
+        {
+            title: '名字',
+            dataIndex: 'name',
+            key: 'name',
+        },
+        {
+            title: 'UUID',
+            dataIndex: 'id',
+            key: 'id',
+        },
+        {
+            title: '用户是否能删除',
+            dataIndex: 'deletable',
+            key: 'deletable',
+            render: deletable => (deletable ? '是' : '否'),
+        },
+        {
+            title: '操作',
+            key: 'action',
+            render: (_, folder) => (
+                <>
+                    <Button onClick={() => showEditFolderModal(folder)} style={{ marginRight: 8 }}>编辑</Button>
+                    <Button onClick={() => handleDeleteFolder(folder.id)} danger>删除</Button>
+
+                </>
+            ),
+        }
+    ];
+
+    const handleAddFolder = async (values) => {
+        try {
+            const response = await fetch(`${API_URL}/addPromptFolder`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(values),
+            });
+            if (!response.ok) throw new Error('Network response was not ok');
+            message.success('文件夹添加成功!');
+            setIsAddFolderModalVisible(false);
+            fetchPrompts(); // 重新获取提示词和文件夹列表以更新UI
+        } catch (error) {
+            console.error('添加文件夹失败:', error);
+            message.error('添加文件夹失败');
+        }
+    };
+
+    const handleEditFolder = async (values) => {
+        console.log("values:", values);
+        console.log(editingFolder.id);
+        try {
+            const response = await fetch(`${API_URL}/updatePromptFolder/${editingFolder.id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(values),
+            });
+            if (!response.ok) throw new Error('Network response was not ok');
+            message.success('文件夹更新成功!');
+            setIsEditFolderModalVisible(false);
+            fetchPrompts(); // 重新获取提示词和文件夹列表以更新UI
+        } catch (error) {
+            console.error('更新文件夹失败:', error);
+            message.error('更新文件夹失败');
+        }
+    };
 
 
 
@@ -156,79 +268,55 @@ const PromptsPage = () => {
         }
     };
 
-    const onDragEnd = async (result) => {
-        const {source, destination} = result;
+    const onDragEnd = (result) => {
+        const { source, destination } = result;
 
-        // 如果目标位置不存在或者拖拽位置没有变化，则不做任何操作
-        if (!destination || (source.droppableId === destination.droppableId && source.index === destination.index)) {
+        if (!destination || (source.index === destination.index && source.droppableId === destination.droppableId)) {
             return;
         }
 
-        // 根据拖拽结果更新提示词的顺序
-        const startFolderId = source.droppableId;
-        const finishFolderId = destination.droppableId;
-
-        // 创建新的提示词数组副本
-        const newPrompts = Array.from(prompts);
-        // 移除源位置的提示词
-        const [reorderedPrompt] = newPrompts.splice(source.index, 1);
-
-        // 如果跨文件夹移动，更新提示词的 folderId
-        if (startFolderId !== finishFolderId) {
-            reorderedPrompt.folderId = finishFolderId === 'noFolder' ? null : finishFolderId;
-        }
-
-        // 插入到新位置
-        newPrompts.splice(destination.index, 0, reorderedPrompt);
-
-        // 更新状态以反映拖拽操作的结果
-        setPrompts(newPrompts);
-
-        // 可以在这里调用API更新服务器上的提示词顺序
-        try {
-            const response = await fetch(`${API_URL}/updatePromptsOrder`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    prompts: newPrompts.map((prompt, index) => ({
-                        id: prompt.id,
-                        order: index
-                    }))
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to update prompts order');
-            }
-
-            // 可选：如果需要，处理服务器响应
-            const data = await response.json();
-            message.success("Prompts order updated successfully");
-        } catch (error) {
-            // console.error('Error updating prompts order:', error);
-            message.error("Failed to update prompts order");
-        }
+        const newFolders = reorder(folders, source.index, destination.index);
+        setFolders(newFolders);
+        // Optionally, update the order on the server here
+        updateFoldersOnServer(newFolders)
     };
-    const DroppableComponent = (provided) => ({ children }) => (
-        <tbody ref={provided.innerRef} {...provided.droppableProps}>
-        {children}
-        {provided.placeholder}
-        </tbody>
-    );
 
-    const DraggableComponent = ({  children, className, style, ...restProps }) => {
-        const index = (() => {
-            for (let i = 0; i < prompts.length; i++) {
-                if (prompts[i].id === restProps['data-row-key']) {
-                    return i;
+    const updateFoldersOnServer = (folders) => {
+        fetch(`${API_URL}/updatePromptFoldersOrder`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ Folders: folders }),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
                 }
-            }
-            return -1; // 如果没有找到匹配项，返回-1
-        })();
+                return response.json(); // 确保响应的内容类型是 application/json
+            })
+            .then(data => {
+                message.success(data.message); // 使用服务器返回的消息
+            })
+            .catch(error => {
+                console.error('Failed to update folder order:', error);
+                message.error("更新文件夹顺序失败");
+            });
+    };
+
+    const reorder = (list, startIndex, endIndex) => {
+        const result = Array.from(list);
+        const [removed] = result.splice(startIndex, 1);
+        result.splice(endIndex, 0, removed);
+        return result;
+    };
+
+
+
+    const DraggableComponent = ({ className, style, children, ...restProps }) => {
+        const index = folders.findIndex(folder => folder.id === restProps['data-row-key']);
         return (
-            <Draggable draggableId={restProps['data-row-key']} index={index}>
+            <Draggable draggableId={String(restProps['data-row-key'])} index={index}>
                 {(provided, snapshot) => (
                     <tr
                         ref={provided.innerRef}
@@ -246,59 +334,58 @@ const PromptsPage = () => {
                 )}
             </Draggable>
         );
-    }
+    };
+
 
 
     return (
-        <div style={{background: '#ECECEC', padding: '30px'}}>
+
+        <div >
+
+            <h2>文件夹</h2>
+            <Button type="primary" onClick={showAddFolderModal} style={{ marginBottom: 16 }}>
+                新增文件夹
+            </Button>
+            <DragDropContext onDragEnd={onDragEnd}>
+                <Table
+                    dataSource={folders}
+                    columns={folderColumns}
+                    rowKey="id"
+                    pagination={false}
+                    components={{
+                        body: {
+                            wrapper: DroppableComponent,
+                            row: DraggableComponent,
+                        },
+                    }}
+                />
+            </DragDropContext>
+
+
             <Button type="primary" onClick={showAddModal} style={{marginBottom: 16}}>
                 新建提示词
             </Button>
-            <DragDropContext onDragEnd={onDragEnd}>
-                {folders.map((folder, index) => (
-                    <Droppable droppableId={folder.id} key={folder.id}>
-                        {(provided, snapshot) => (
-                            <div ref={provided.innerRef} {...provided.droppableProps} style={{ marginBottom: 20 }}>
-                                <h2>{folder.name}</h2>
-                                <Table
-                                    dataSource={prompts.filter(prompt => prompt.folderId === folder.id).map((item, index) => ({...item, index}))}
-                                    rowKey="id"
-                                    columns={columns}
-                                    pagination={false}
-                                    components={{
-                                        body: {
-                                            wrapper: DroppableComponent(provided),
-                                            row: DraggableComponent,
-                                        },
-                                    }}
-                                />
-                                {provided.placeholder}
-                            </div>
-                        )}
-                    </Droppable>
-                ))}
-                {/* 无文件夹的提ds示词 */}
-                <Droppable droppableId="noFolder">
-                    {(provided, snapshot) => (
-                        <div ref={provided.innerRef} {...provided.droppableProps} style={{ marginBottom: 20 }}>
-                            <h2>无文件夹的提示词</h2>
-                            <Table
-                                dataSource={prompts.filter(prompt => !prompt.folderId).map((item, index) => ({...item, index}))}
-                                rowKey="id"
-                                columns={columns}
-                                pagination={false}
-                                components={{
-                                    body: {
-                                        wrapper: DroppableComponent(provided),
-                                        row: DraggableComponent,
-                                    },
-                                }}
-                            />
-                            {provided.placeholder}
-                        </div>
-                    )}
-                </Droppable>
-            </DragDropContext>
+            {folders.map(folder => (
+                <div key={folder.id} style={{ marginBottom: 20 }}>
+                    <h2>{folder.name}</h2>
+                    <Table
+                        dataSource={prompts.filter(prompt => prompt.folderId === folder.id)}
+                        rowKey="id"
+                        columns={columns}
+                        pagination={false}
+                    />
+                </div>
+            ))}
+            {/* 无文件夹的提示词 */}
+            <div style={{ marginBottom: 20 }}>
+                <h2>无文件夹的提示词</h2>
+                <Table
+                    dataSource={prompts.filter(prompt => !prompt.folderId)}
+                    rowKey="id"
+                    columns={columns}
+                />
+            </div>
+            {/* 模态框和其他UI元素 */}
             <Modal
                 title="新建提示词"
                 visible={isAddModalVisible}
@@ -398,10 +485,90 @@ const PromptsPage = () => {
                     </Form.Item>
                 </Form>
             </Modal>
+            <Modal
+                title="新增文件夹"
+                visible={isAddFolderModalVisible}
+                onCancel={() => setIsAddFolderModalVisible(false)}
+                onOk={() => {
+                    addFolderForm
+                        .validateFields()
+                        .then(values => {
+                            handleAddFolder(values);
+                            setIsAddFolderModalVisible(false); // 关闭模态框
+                            addFolderForm.resetFields(); // 重置表单字段
+                        })
+                        .catch(info => {
+                            console.log('Validate Failed:', info);
+                        });
+                }}
+            >
+                <Form form={addFolderForm} layout="vertical">
+                    <Form.Item
+                        name="name"
+                        label="文件夹名称"
+                        rules={[{ required: true, message: '请输入文件夹名称!' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        name="deletable"
+                        label="用户是否能删除"
+                        valuePropName="checked"
+                    >
+                        <Switch />
+                    </Form.Item>
+                </Form>
+            </Modal>
+            <Modal
+                title="编辑文件夹"
+                visible={isEditFolderModalVisible}
+                onCancel={() => setIsEditFolderModalVisible(false)}
+                onOk={() => {
+                    editFolderForm
+                        .validateFields()
+                        .then(values => {
+                            handleEditFolder(values, editingFolder.id); // 确保传递当前正在编辑的文件夹ID
+                            setIsEditFolderModalVisible(false); // 关闭模态框
+                            editFolderForm.resetFields(); // 重置表单字段
+                        })
+                        .catch(info => {
+                            console.log('Validate Failed:', info);
+                        });
+                }}
+            >
+                <Form form={editFolderForm} layout="vertical" initialValues={{ name: editingFolder?.name, deletable: editingFolder?.deletable }}>
+                    <Form.Item
+                        name="name"
+                        label="文件夹名称"
+                        rules={[{ required: true, message: '请输入文件夹名称!' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        name="deletable"
+                        label="用户是否能删除"
+                        valuePropName="checked"
+                    >
+                        <Switch />
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div>
     );
 };
-;
-
+const DroppableComponent = (props) => (
+    <Droppable droppableId="foldersDroppable">
+        {(provided, snapshot) => (
+            <tbody
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                style={{ backgroundColor: snapshot.isDraggingOver ? 'lightblue' : 'white' }}
+            >
+            {props.children}
+            {provided.placeholder}
+            </tbody>
+        )}
+    </Droppable>
+);
 
 export default PromptsPage;

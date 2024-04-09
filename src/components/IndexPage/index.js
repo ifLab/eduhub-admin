@@ -391,8 +391,7 @@ const IndexPage = () => {
             });
     };
     const DraggableComponent = ({ children, className, style, ...restProps }) => {
-        // We need to pass the index and draggableId which we can take from restProps['data-row-key']
-        // const index = folders.findIndex((folder) => folder.id === restProps['data-row-key']);
+
         const index = (() => {
             for (let i = 0; i < folders.length; i++) {
                 if (folders[i].id === restProps['data-row-key']) {
@@ -432,8 +431,7 @@ const IndexPage = () => {
             <Button type="primary" onClick={() => showFolderModal(null)} style={{ marginBottom: 16, float: 'right' }}>
                 新增文件夹
             </Button>
-            {/*<Table dataSource={folders} columns={folderColumns} rowKey="id"/>*/}
-            {/*<DragDropContext onDragEnd={onDragEnd}> */}
+
             <DragDropContext onDragEnd={onDragEnd}>
                 <Table
                     dataSource={folders}

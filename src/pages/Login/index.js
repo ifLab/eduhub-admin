@@ -7,8 +7,6 @@ import bcrypt from 'bcryptjs';
 function Login() {
     const [form] = Form.useForm();
     const navigate = useNavigate();
-
-
     const onFinish = (values) => {
         // const hashedPassword = bcrypt.hashSync("admin123", salt);
         // console.log("hashedPassword",hashedPassword)

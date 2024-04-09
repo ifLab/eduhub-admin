@@ -7,7 +7,6 @@ const port = 3001; // 确保此端口不与其他服务冲突
 const path = require('path');
 // const uuidv4 = require("uuidv4");
 const { v4: uuidv4 } = require('uuid');
-const {message} = require("antd");
 const filePath = path.join(__dirname, '..', 'data', 'account.json');
 const dify_keys = path.join(__dirname, '..', 'data', 'dify_keys.json');
 // const dify_keys = '../../../chatbot-ui/dify_keys.json';
@@ -786,31 +785,195 @@ app.post('/addPrompt', (req, res) => {
     });
 });
 
+app.post('/addPromptFolder', (req, res) => {
+    const { name, deletable } = req.body;
+
+    // 简单的验证
+    if (!name) {
+        return res.status(400).send('Name is required');
+    }
+
+    // 读取现有的JSON文件
+    fs.readFile(promptPath, (err, data) => {
+        if (err) {
+            console.error('Failed to read JSON file:', err);
+            return res.status(500).send('Failed to read data');
+        }
+
+        // 解析JSON数据
+        const json = JSON.parse(data.toString());
+        const newFolder = {
+            id: uuidv4(), // 生成唯一ID
+            name,
+            deletable: !!deletable, // 确保deletable是布尔值
+        };
+
+        // 添加新文件夹到Folders数组
+        json.Folders.push(newFolder);
+
+        // 将更新后的数据写回JSON文件
+        fs.writeFile(promptPath, JSON.stringify(json, null, 2), (err) => {
+            if (err) {
+                console.error('Failed to write JSON file:', err);
+                return res.status(500).send('Failed to save data');
+            }
+
+            res.status(201).json(newFolder);
+        });
+    });
+});
+
+
+app.post('/updatePromptFolder/:id', (req, res) => {
+    const { id } = req.params; // 从请求参数中获取文件夹ID
+    const { name, deletable } = req.body; // 从请求体中获取更新的信息
+
+    // 简单的验证
+    if (!name) {
+        return res.status(400).send('Name is required');
+    }
+
+    // 读取现有的JSON文件
+    fs.readFile(promptPath, (err, data) => {
+        if (err) {
+            console.error('Failed to read JSON file:', err);
+            return res.status(500).send('Failed to read data');
+        }
+
+        // 解析JSON数据
+        const json = JSON.parse(data.toString());
+        const folderIndex = json.Folders.findIndex(folder => folder.id === id);
+
+        // 检查文件夹是否存在
+        if (folderIndex === -1) {
+            return res.status(404).send('Folder not found');
+        }
+
+        // 更新文件夹信息
+        json.Folders[folderIndex] = {
+            ...json.Folders[folderIndex],
+            name,
+            deletable: !!deletable, // 确保deletable是布尔值
+        };
+
+        // 将更新后的数据写回JSON文件
+        fs.writeFile(promptPath, JSON.stringify(json, null, 2), (err) => {
+            if (err) {
+                console.error('Failed to write JSON file:', err);
+                return res.status(500).send('Failed to save data');
+            }
+
+            res.status(200).json(json.Folders[folderIndex]);
+        });
+    });
+});
+
+app.delete('/deletePromptFolder/:id', (req, res) => {
+    const { id } = req.params;
+
+    fs.readFile(promptPath, (err, data) => {
+        if (err) {
+            res.status(500).send('Error reading JSON file');
+            return;
+        }
+
+        const json = JSON.parse(data);
+        const folders = json.Folders;
+        const prompts = json.Prompts;
+
+        // 检查是否有属于该文件夹的提示词
+        const hasPrompts = prompts.some(prompt => prompt.folderId === id);
+        if (hasPrompts) {
+            res.status(400).send('Cannot delete folder because it contains prompts');
+            return;
+        }
+
+        // 删除文件夹
+        const updatedFolders = folders.filter(folder => folder.id !== id);
+        json.Folders = updatedFolders;
+
+        fs.writeFile(promptPath, JSON.stringify(json, null, 2), (err) => {
+            if (err) {
+                res.status(500).send('Error writing JSON file');
+                return;
+            }
+
+            res.send('Folder deleted successfully');
+        });
+    });
+});
+
+app.post('/updatePromptFoldersOrder', (req, res) => {
+    const { Folders } = req.body;
+
+    fs.readFile(promptPath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading file:', err);
+            return res.status(500).json({ error: 'An error occurred while reading the file.' });
+        }
+
+        const jsonData = JSON.parse(data);
+        jsonData.Folders = Folders; // 更新Folders数组
+
+        fs.writeFile(promptPath, JSON.stringify(jsonData, null, 2), 'utf8', (err) => {
+            if (err) {
+                console.error('Error writing file:', err);
+                return res.status(500).json({ error: 'An error occurred while writing to the file.' });
+            }
+            res.status(200).json({ message: 'File updated successfully' });
+        });
+    });
+});
+
+// app.post('/updatePromptsOrder', async (req, res) => {
+//     const { updatedFolders } = req.body;
+//
+//     try {
+//         const data = await fs.promises.readFile(promptPath, 'utf8');
+//         const jsonData = JSON.parse(data);
+//
+//         updatedFolders.forEach(updatedFolder => {
+//             updatedFolder.prompts.forEach((promptId, index) => {
+//                 const promptIndex = jsonData.Prompts.findIndex(prompt => prompt.id === promptId);
+//                 if (promptIndex !== -1) {
+//                     jsonData.Prompts[promptIndex].order = index;
+//                 }
+//             });
+//         });
+//
+//         await fs.promises.writeFile(promptPath, JSON.stringify(jsonData, null, 2));
+//         res.send({ message: 'Prompts order and folders updated successfully' });
+//     } catch (err) {
+//         console.error('Failed to update prompts order:', err);
+//         res.status(500).send('Failed to process the request');
+//     }
+// });
+
 app.post('/updatePromptsOrder', async (req, res) => {
-    const { updatedFolders } = req.body;
+    const { updatedPromptsOrder } = req.body;
 
     try {
         const data = await fs.promises.readFile(promptPath, 'utf8');
         const jsonData = JSON.parse(data);
 
-        updatedFolders.forEach(updatedFolder => {
-            updatedFolder.prompts.forEach((promptId, index) => {
-                const promptIndex = jsonData.Prompts.findIndex(prompt => prompt.id === promptId);
-                if (promptIndex !== -1) {
-                    jsonData.Prompts[promptIndex].order = index;
-                }
-            });
-        });
+        // 重新排序 Prompts 数组
+        const newPrompts = updatedPromptsOrder.map(orderItem => {
+            const prompt = jsonData.Prompts.find(prompt => prompt.id === orderItem.id);
+            if (prompt) {
+                return { ...prompt, folderId: orderItem.folderId };
+            }
+            return null;
+        }).filter(prompt => prompt !== null);
+
+        jsonData.Prompts = newPrompts;
 
         await fs.promises.writeFile(promptPath, JSON.stringify(jsonData, null, 2));
-        res.send({ message: 'Prompts order and folders updated successfully' });
+        res.send({ message: 'Prompts order updated successfully' });
     } catch (err) {
         console.error('Failed to update prompts order:', err);
         res.status(500).send('Failed to process the request');
     }
 });
-
-
 
 
 app.post('/updateHelpData', (req, res) => {
