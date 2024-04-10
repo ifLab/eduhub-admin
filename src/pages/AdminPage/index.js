@@ -8,7 +8,8 @@ import {
     SkinOutlined,
     UserOutlined,
     QuestionOutlined,
-    LogoutOutlined
+    LogoutOutlined,
+    SyncOutlined
 } from '@ant-design/icons';
 import ApplicationPage  from "../../components/ApplicationPage";
 import IndexPage   from "../../components/IndexPage";
@@ -19,6 +20,7 @@ import IndexTeacherPage from "../../components/IndexTeacherPage";
 import {useNavigate} from "react-router-dom";
 import SettingPage  from "../../components/SettingPage";
 import UserManagePage from "../../components/UserManagePage";
+import RebuildAndRestartButton from '../../components/RebuildAndRestartButton';
 
 const { Header, Content, Sider } = Layout;
 
@@ -67,18 +69,20 @@ const AdminPage = () => {
             {/*    BISTU Copilot 后台管理*/}
             {/*</Header>*/}
             <Header className="header" style={{ color: 'white', fontSize: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>BISTU Copilot 后台管理</div>
-                <div>
-                    <Popconfirm
-                        title="你确定要退出登录吗？"
-                        onConfirm={handleLogout}
-                        okText="是"
-                        cancelText="否"
-                    >
-                        <LogoutOutlined style={{ fontSize: '20px', color: 'white', cursor: 'pointer' }} /> 退 出
-                    </Popconfirm>
-                </div>
-            </Header>
+      <div>BISTU Copilot 后台管理</div>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        {/* Rebuild and Restart Button with Icon */}
+        <RebuildAndRestartButton style={{ marginRight: '10px' }} icon={<SyncOutlined />} />
+        <Popconfirm
+            title="你确定要退出登录吗？"
+            onConfirm={handleLogout}
+            okText="是"
+            cancelText="否"
+        >
+            <LogoutOutlined style={{ fontSize: '20px', color: 'white', cursor: 'pointer', marginLeft: '20px' }} /> 退 出
+        </Popconfirm>
+      </div>
+    </Header>
             <Layout>
                 <Sider width={200} className="site-layout-background">
                     <Menu
