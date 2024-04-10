@@ -212,7 +212,7 @@ const IndexPage = () => {
 
 // 处理编辑文件夹
     const handleEditFolder = (id, folder) => {
-        fetch(`${API_URL}/${id}`, {
+        fetch(`${API_URL}/editFolder/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -455,9 +455,12 @@ const IndexPage = () => {
                         .then(values => {
                             if (currentFolder) {
                                 // 如果currentFolder存在，执行编辑文件夹的逻辑
+                                console.log("1111111111111");
                                 handleEditFolder(currentFolder.id, values);
                             } else {
                                 // 否则执行添加文件夹的逻辑
+                                console.log("22222222222222");
+
                                 handleAddFolder(values);
                             }
                         })
