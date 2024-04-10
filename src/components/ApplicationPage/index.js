@@ -99,8 +99,59 @@
                     console.error('Failed to delete data:', error);
                     message.error(error.message); // 使用 message 组件显示错误提示
                 });
-            //前端删除
-            // setData(data.filter(item => item.key !== key));
+
+
+            const nameToDelete = data.find(item => item.key === key).name;
+            fetch(`${API_URL}/deleteChatByName/${encodeURIComponent(nameToDelete)}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then(async response => {
+                    const textMessage = await response.text();
+                    if (!response.ok) {
+                        // 如果响应状态码不是2xx，抛出错误
+                        throw new Error(textMessage || '删除失败');
+                    }
+                    return textMessage;
+                })
+                .then(messages => {
+                    console.log(messages);
+                    // 请求成功后更新前端数据
+                    setData(data.filter(item => item.name !== nameToDelete));
+                    // message.success('删除成功');
+                })
+                .catch(error => {
+                    console.error('Failed to delete chat by name:', error);
+                    // message.error(error.message); // 使用 message 组件显示错误提示
+                });
+
+            fetch(`${API_URL}/deleteTeacherChatByName/${encodeURIComponent(nameToDelete)}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then(async response => {
+                    const textMessage = await response.text();
+                    if (!response.ok) {
+                        // 如果响应状态码不是2xx，抛出错误
+                        throw new Error(textMessage || '删除失败');
+                    }
+                    return textMessage;
+                })
+                .then(messages => {
+                    console.log(messages);
+                    // 请求成功后更新前端数据
+                    setData(data.filter(item => item.name !== nameToDelete));
+                    // message.success('删除成功');
+                })
+                .catch(error => {
+                    console.error('Failed to delete chat by name:', error);
+                    // message.error(error.message); // 使用 message 组件显示错误提示
+                });
+
         };
         const handleOk = () => {
             form
@@ -123,7 +174,7 @@
                         .then(message => {
                             console.log(message);
                             fetchData();
-                            return fetch(`${API_URL}/editChatName`, {
+                            fetch(`${API_URL}/editChatName`, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -133,6 +184,17 @@
                                     newName: values.name, // 表单中的新名称
                                 }),
                             });
+                            fetch(`${API_URL}/editTeacherChatName`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    originalName: currentRecord.name, // 当前记录的原始名称
+                                    newName: values.name, // 表单中的新名称
+                                }),
+                            });
+                            return
                             // setIsModalVisible(false);
                             // 可能需要重新获取更新后的数据
                         })
@@ -166,8 +228,11 @@
                         }),
                     })
                         .then(response => response.text())
-                        .then(message => {
-                            console.log(message);
+                        .then(messages => {
+                            console.log(messages);
+                            if (messages === 'Application already exists'){
+                                message.error('应用已存在');
+                            }
                             // 添加成功后刷新数据
                             fetchData();
                             // 关闭模态框

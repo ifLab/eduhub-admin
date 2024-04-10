@@ -23,6 +23,7 @@ const configPath =path.join(__dirname, '..', 'data', 'config.json');
 const whitelistPath = '../../../chatbot-ui/whitelist.json';
 // const blacklistPath =path.join(__dirname, '..', 'data', 'blacklist.json');
 const blacklistPath = '../../../chatbot-ui/blacklist.json';
+// const openAiTsFile= 'C:\\Users\\zyw\\code\\openai.ts';
 const openAiTsFile= '../../../chatbot-ui/types/openai.ts';
 
 const bcrypt = require('bcryptjs');
@@ -124,20 +125,21 @@ app.post('/updateKeysData', (req, res) => {
 
                 // 更新OpenAIModelID枚举成员
                 const enumPattern = new RegExp(`(${originalName}\\s+=\\s+')${originalName}(',)`, 'g');
-                fileContent = fileContent.replace(enumPattern, `${newName} = '${newName}'$2`);
+                fileContent = fileContent.replace(enumPattern, `${newName} = '${newName}$2`);
 
                 const modelPattern = new RegExp(`\\[OpenAIModelID.${originalName}\\]:\\s+{[^}]+},?\\s+`, 'g');
-                fileContent = fileContent.replace(modelPattern, '');
-
-                // 添加新的OpenAIModels属性
-                fileContent += `
+                const str = `
 [OpenAIModelID.${newName}]: {
     id: OpenAIModelID.${newName},
     name: '${newName}',
     maxLength: 12000,
     tokenLimit: 4000,
     key: keys['${newName}'] || process.env.DIFY_API_KEY || '',
-},`;
+},\n`;
+                fileContent = fileContent.replace(modelPattern, str);
+
+                // 添加新的OpenAIModels属性
+
 
                 // 更新OpenAIModels对象中的key属性不需要额外的正则替换，因为key的更新已经在上面的代码中处理
 
@@ -189,6 +191,42 @@ app.post('/editChatName', (req, res) => {
         });
     });
 });
+
+
+app.post('/editTeacherChatName', (req, res) => {
+    const { originalName, newName } = req.body;
+    fs.readFile(teacherChatPath, 'utf8', (err, data) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Error reading studentChat.json');
+            return;
+        }
+
+        let teacherChatData = JSON.parse(data);
+        let updated = false;
+
+        // 更新所有名称匹配的聊天
+        teacherChatData.Chats.forEach(chat => {
+            if (chat.name === originalName) {
+                chat.name = newName;
+                updated = true;
+            }
+        });
+
+        if (!updated) {
+            res.send('No chat found with the original name, no update needed.');
+            return;
+        }
+        fs.writeFile(teacherChatPath, JSON.stringify(teacherChatData, null, 2), 'utf8', (err) => {
+            if (err) {
+                console.error(err);
+                res.status(500).send('Error writing to studentChat.json');
+                return;
+            }
+            res.send('studentChat.json updated successfully');
+        });
+    });
+});
 app.post('/deleteKeyData', (req, res) => {
     const { name } = req.body;
 
@@ -227,11 +265,11 @@ app.post('/deleteKeyData', (req, res) => {
                 }
 
                 // 删除OpenAIModelID枚举成员
-                const enumPattern = new RegExp(`\\s+${name}\\s+=\\s+'${name}',?\\n`, 'g');
+                const enumPattern = new RegExp(`\\s+${name}\\s+=\\s+'${name}',?`, 'g');
                 fileContent = fileContent.replace(enumPattern, '');
 
                 // 删除OpenAIModels对象中的属性
-                const modelPattern = new RegExp(`\\s+\\[OpenAIModelID.${name}\\]:\\s+{[\\s\\S]+?\\},?\\n`, 'g');
+                const modelPattern = new RegExp(`\\s+\\[OpenAIModelID.${name}\\]:\\s+{[\\s\\S]+?\\},?`, 'g');
                 fileContent = fileContent.replace(modelPattern, '');
 
                 // 写回更新后的openai.ts
@@ -432,6 +470,68 @@ app.delete('/deleteChat/:id', (req, res) => {
         });
     });
 });
+
+app.delete('/deleteChatByName/:name', (req, res) => {
+    const { name } = req.params;
+    fs.readFile(studentChatPath, 'utf8', (err, data) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Error reading data file');
+            return;
+        }
+        let studentChatData = JSON.parse(data);
+        // 使用filter方法移除所有名字匹配的聊天记录
+        const originalLength = studentChatData.Chats.length;
+        studentChatData.Chats = studentChatData.Chats.filter(chat => chat.name !== name);
+
+        // 如果长度未变，说明没有找到匹配的聊天记录
+        // if (studentChatData.Chats.length === originalLength) {
+        //     res.status(404).send('Chat not found');
+        //     return;
+        // }
+
+        // 将更新后的数据写回文件
+        fs.writeFile(studentChatPath, JSON.stringify(studentChatData, null, 2), 'utf8', (err) => {
+            if (err) {
+                console.error(err);
+                res.status(500).send('Error writing to file');
+                return;
+            }
+            res.send('Chat(s) deleted successfully');
+        });
+    });
+});
+
+app.delete('/deleteTeacherChatByName/:name', (req, res) => {
+    const { name } = req.params;
+    fs.readFile(teacherChatPath, 'utf8', (err, data) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Error reading data file');
+            return;
+        }
+        let teacherChatData = JSON.parse(data);
+        // 使用filter方法移除所有名字匹配的聊天记录
+        const originalLength = teacherChatData.Chats.length;
+        teacherChatData.Chats = teacherChatData.Chats.filter(chat => chat.name !== name);
+
+        // 如果长度未变，说明没有找到匹配的聊天记录
+        // if (studentChatData.Chats.length === originalLength) {
+        //     res.status(404).send('Chat not found');
+        //     return;
+        // }
+
+        // 将更新后的数据写回文件
+        fs.writeFile(teacherChatPath, JSON.stringify(teacherChatData, null, 2), 'utf8', (err) => {
+            if (err) {
+                console.error(err);
+                res.status(500).send('Error writing to file');
+                return;
+            }
+            res.send('Chat(s) deleted successfully');
+        });
+    });
+})
 
 app.delete('/deleteChatTeacher/:id', (req, res) => {
     const { id } = req.params;
