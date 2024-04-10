@@ -16,17 +16,17 @@ const studentChatPath = '../../../chatbot-ui/studentChat.json';
 const teacherChatPath = '../../../chatbot-ui/teacherChat.json';
 // const promptPath =path.join(__dirname, '..', 'data', 'prompt.json');
 const promptPath = '../../../chatbot-ui/prompt.json';
-const helpPath =path.join(__dirname, '..', 'data', 'help.json');
-const lookPath =path.join(__dirname, '..', 'data', 'looks.json');
-const configPath =path.join(__dirname, '..', 'data', 'config.json');
+const helpPath = path.join(__dirname, '..', 'data', 'help.json');
+const lookPath = path.join(__dirname, '..', 'data', 'looks.json');
+const configPath = path.join(__dirname, '..', 'data', 'config.json');
 // const whitelistPath =path.join(__dirname, '..', 'data', 'whitelist.json');
 const whitelistPath = '../../../chatbot-ui/whitelist.json';
 // const blacklistPath =path.join(__dirname, '..', 'data', 'blacklist.json');
 const blacklistPath = '../../../chatbot-ui/blacklist.json';
-// const openAiTsFile= 'C:\\Users\\zyw\\code\\openai.ts';
-const openAiTsFile= '../../../chatbot-ui/types/openai.ts';
+const openAiTsFile = '../../../chatbot-ui/types/openai.ts';
 
 const bcrypt = require('bcryptjs');
+const { exec } = require('child_process');
 
 
 //后端
@@ -54,11 +54,11 @@ app.post('/login', (req, res) => {
     console.log(req.body);
     const { username, password } = req.body;
     const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-    const salt="$2a$10$lAOe6jrPoDOI4tJarzjpBO";
-    const user = data.users.find(u => u.username === username );
+    const salt = "$2a$10$lAOe6jrPoDOI4tJarzjpBO";
+    const user = data.users.find(u => u.username === username);
     console.log("@@@@@@@@@@@@@@@@@")
 
-    if (user &&  bcrypt.compareSync(password, user.password)) {
+    if (user && bcrypt.compareSync(password, user.password)) {
         res.json({ success: true, message: '登录成功' });
     } else {
         res.status(401).json({ success: false, message: '用户名或密码错误' });
@@ -73,7 +73,7 @@ app.get('/getDify_keys', (req, res) => {
             return;
         }
         res.json(JSON.parse(data));
-        console.log("res.json",res.json)
+        console.log("res.json", res.json)
     });
 });
 
@@ -84,7 +84,7 @@ app.get('/TestTs', (req, res) => {
             return;
         }
         res.json(JSON.parse(data));
-        console.log("res.json",res.json)
+        console.log("res.json", res.json)
     });
 });
 
@@ -138,7 +138,7 @@ app.post('/updateKeysData', (req, res) => {
 },\n`;
                 fileContent = fileContent.replace(modelPattern, str);
 
-                // 添加新的OpenAIModels属性
+
 
 
                 // 更新OpenAIModels对象中的key属性不需要额外的正则替换，因为key的更新已经在上面的代码中处理
@@ -635,7 +635,7 @@ app.post('/addChatTeacher', (req, res) => {
 });
 
 app.get('/getPrompts', (req, res) => {
-    fs.readFile( promptPath, 'utf8', (err, data) => {
+    fs.readFile(promptPath, 'utf8', (err, data) => {
         if (err) {
             console.error('Error reading file:', err);
             res.status(500).send('Error reading prompt file');
@@ -1344,6 +1344,24 @@ app.delete('/deleteblacklist/:id', (req, res) => {
             }
             res.send('Data deleted successfully');
         });
+    });
+});
+
+// app.post('/api/rebuild-and-restart', (req, res) => {
+//     res.send('Endpoint hit successfully');
+//   });
+  
+// // 构建并重启应用
+app.post('/api/rebuild-and-restart', (req, res) => {
+    console.log('Rebuilding and restarting the app...');
+    exec('cd ../../../chatbot-ui && npm run build && pm2 restart chatbot-ui', (error, stdout, stderr) => {
+        if (error) {
+            console.error(`exec error: ${error}`);
+            return res.status(500).send(`Error: ${error.message}`);
+        }
+        console.log(`stdout: ${stdout}`);
+        console.error(`stderr: ${stderr}`);
+        res.send('Application is being rebuilt and restarted');
     });
 });
 
