@@ -212,11 +212,20 @@ const IndexPage = () => {
 
 // 处理编辑文件夹
     const handleEditFolder = (id, folder) => {
+        console.log("edit folder", id, folder,typeof (folder.deletable));
+        if (typeof (folder.deletable)!= "boolean"){
+            if(folder.deletable=="true"){
+                folder.deletable=true;
+            }else {
+                folder.deletable=false;
+            }
+        }
         fetch(`${API_URL}/editFolder/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
+
             body: JSON.stringify(folder),
         })
             .then(response => {

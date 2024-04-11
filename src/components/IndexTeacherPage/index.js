@@ -223,6 +223,14 @@ const IndexTeacherPage = () => {
 
 // 处理编辑文件夹
     const handleEditFolder = (id, folder) => {
+        console.log("edit folder", id, folder,typeof (folder.deletable));
+        if (typeof (folder.deletable)!= "boolean"){
+            if(folder.deletable=="true"){
+                folder.deletable=true;
+            }else {
+                folder.deletable=false;
+            }
+        }
         fetch(`${API_URL}/editFolderTeacher/${id}`, {
             method: 'PUT',
             headers: {
