@@ -4,9 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { API_URL } from '../../config/config';
 import bcrypt from 'bcryptjs';
 
+import {useAuth} from "../../context/AuthContext";
+
 function Login() {
     const [form] = Form.useForm();
     const navigate = useNavigate();
+    const { login } = useAuth();
     const onFinish = (values) => {
         // const hashedPassword = bcrypt.hashSync("admin123", salt);
         // console.log("hashedPassword",hashedPassword)
@@ -30,6 +33,7 @@ function Login() {
             })
             .then(data => {
                 console.log('登录成功:', data);
+                login(data);
                 message.success('登录成功');
                 navigate('/AdminPage'); // 登录成功后跳转)
             })
