@@ -9,21 +9,21 @@ const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const filePath = path.join(__dirname, '..', 'data', 'account.json');
 // const dify_keys = path.join(__dirname, '..', 'data', 'dify_keys.json');
-const dify_keys = '../../../chatbot-ui/dify_keys.json';
+const dify_keys = '../../../eduhub/dify_keys.json';
 // const studentChatPath =path.join(__dirname, '..', 'data', 'studentChat.json');
-const studentChatPath = '../../../chatbot-ui/studentChat.json';
+const studentChatPath = '../../../eduhub/studentChat.json';
 // const teacherChatPath =path.join(__dirname, '..', 'data', 'teacherChat.json');
-const teacherChatPath = '../../../chatbot-ui/teacherChat.json';
+const teacherChatPath = '../../../eduhub/teacherChat.json';
 // const promptPath =path.join(__dirname, '..', 'data', 'prompt.json');
-const promptPath = '../../../chatbot-ui/prompt.json';
+const promptPath = '../../../eduhub/prompt.json';
 const helpPath = path.join(__dirname, '..', 'data', 'help.json');
 const lookPath = path.join(__dirname, '..', 'data', 'looks.json');
 const configPath = path.join(__dirname, '..', 'data', 'config.json');
 // const whitelistPath =path.join(__dirname, '..', 'data', 'whitelist.json');
-const whitelistPath = '../../../chatbot-ui/whitelist.json';
+const whitelistPath = '../../../eduhub/whitelist.json';
 // const blacklistPath =path.join(__dirname, '..', 'data', 'blacklist.json');
-const blacklistPath = '../../../chatbot-ui/blacklist.json';
-const openAiTsFile = '../../../chatbot-ui/types/openai.ts';
+const blacklistPath = '../../../eduhub/blacklist.json';
+const openAiTsFile = '../../../eduhub/types/openai.ts';
 
 const bcrypt = require('bcryptjs');
 const { exec } = require('child_process');
@@ -1354,7 +1354,7 @@ app.delete('/deleteblacklist/:id', (req, res) => {
 // // 构建并重启应用
 app.post('/api/rebuild-and-restart', (req, res) => {
     console.log('Rebuilding and restarting the app...');
-    exec('cd ../../../chatbot-ui && npm run build && pm2 restart chatbot-ui', (error, stdout, stderr) => {
+    exec('cd ../../../eduhub && npm run build && pm2 restart eduhub', (error, stdout, stderr) => {
         if (error) {
             console.error(`exec error: ${error}`);
             return res.status(500).send(`Error: ${error.message}`);
