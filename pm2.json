@@ -1,0 +1,14 @@
+{
+  "apps": [
+    {
+      "name": "manage-front",
+      "script": "server.js",
+      "cwd": "/app"
+    },
+    {
+      "name": "manage-backend",
+      "script": "server.js",
+      "cwd": "/app/src/apis"
+    }
+  ]
+}
